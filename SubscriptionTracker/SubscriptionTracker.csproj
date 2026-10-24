@@ -16,7 +16,7 @@
 
     <ApplicationTitle>Subscription Tracker</ApplicationTitle>
     <ApplicationId>com.kursova.subscriptiontracker</ApplicationId>
-    <ApplicationDisplayVersion>1.2.0</ApplicationDisplayVersion>
+    <ApplicationDisplayVersion>1.2.1</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
 
     <!-- Run on Windows without MSIX packaging (simpler dotnet build -t:Run) -->

@@ -5,7 +5,7 @@
 #define MyAppName "Subscription Tracker"
 #define MyAppExeName "SubscriptionTracker.exe"
 #ifndef MyAppVersion
-  #define MyAppVersion "1.2.0"
+  #define MyAppVersion "1.2.1"
 #endif
 #ifndef SourceDir
   #define SourceDir "..\publish\windows"
