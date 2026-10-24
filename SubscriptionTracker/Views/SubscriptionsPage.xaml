@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:SubscriptionTracker.ViewModels"
+             xmlns:m="clr-namespace:SubscriptionTracker.Models"
+             xmlns:c="clr-namespace:SubscriptionTracker.Controls"
+             x:Class="SubscriptionTracker.Views.SubscriptionsPage"
+             x:DataType="vm:SubscriptionsViewModel"
+             Title="Subscriptions">
+  <ContentPage.ToolbarItems>
+    <ToolbarItem Text="＋ Add" Command="{Binding AddCommand}" />
+  </ContentPage.ToolbarItems>
+
+  <Grid RowDefinitions="Auto,Auto,Auto,*" Padding="16,12" RowSpacing="8">
+    <SearchBar Placeholder="Search by name..." Text="{Binding SearchText}" />
+
+    <Grid Grid.Row="1" ColumnDefinitions="*,*,*" ColumnSpacing="8">
+      <Picker Title="Status" ItemsSource="{Binding StatusFilters}" SelectedItem="{Binding StatusFilter}" />
+      <Picker Grid.Column="1" Title="Category" ItemsSource="{Binding CategoryFilters}" SelectedItem="{Binding CategoryFilter}" />
+      <Picker Grid.Column="2" Title="Sort by" ItemsSource="{Binding SortOptions}" SelectedItem="{Binding SortOption}" />
+    </Grid>
+
+    <Label Grid.Row="2" Text="{Binding CountText}" Style="{StaticResource Muted}" />
+
+    <CollectionView Grid.Row="3" ItemsSource="{Binding Items}"
+                    SelectionMode="Single" SelectedItem="{Binding SelectedItem}">
+      <CollectionView.EmptyView>
+        <Label Text="No subscriptions found. Tap “＋ Add” to create one." Style="{StaticResource Muted}"
+               HorizontalTextAlignment="Center" Margin="0,40" />
+      </CollectionView.EmptyView>
+      <CollectionView.ItemTemplate>
+        <DataTemplate x:DataType="m:Subscription">
+          <Border Style="{StaticResource Card}" Margin="0,4" Opacity="{Binding ItemOpacity}">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+              <c:LogoView WidthRequest="44" HeightRequest="44" VerticalOptions="Center" />
+              <VerticalStackLayout Grid.Column="1" Spacing="0">
+                <Label Text="{Binding Name}" Style="{StaticResource Strong}" FontSize="16" />
+                <Label Text="{Binding Category}" Style="{StaticResource Muted}" />
+                <Label Text="{Binding StatusText}" Style="{StaticResource Muted}" />
+              </VerticalStackLayout>
+              <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="0">
+                <Label Text="{Binding PriceText}" Style="{StaticResource Strong}" HorizontalTextAlignment="End" />
+                <Label Text="{Binding UahHint}" Style="{StaticResource Muted}" HorizontalTextAlignment="End" />
+              </VerticalStackLayout>
+            </Grid>
+          </Border>
+        </DataTemplate>
+      </CollectionView.ItemTemplate>
+    </CollectionView>
+  </Grid>
+</ContentPage>

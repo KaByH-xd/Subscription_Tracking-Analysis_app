@@ -1,0 +1,18 @@
+## .NET / MAUI
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.apk
+*.aab
+*.db
+.DS_Store
+build.log
+*.log
+_sdk9check/
+_to_delete/
+publish/
+dist/
+*.keystore
+*.jks

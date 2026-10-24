@@ -1,0 +1,156 @@
+name: Build installers
+
+# Push a tag like "v1.2.0" -> installers for Windows and Android are built
+# and published on the Releases page of the repository.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  PROJECT: SubscriptionTracker/SubscriptionTracker.csproj
+  DOTNET_NOLOGO: true
+
+jobs:
+  windows:
+    name: Windows installer (.exe)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Version
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then V="${GITHUB_REF_NAME#v}"; else V="0.0.${{ github.run_number }}"; fi
+          echo "VERSION=$V" >> "$GITHUB_ENV"
+
+      - name: Install MAUI workload
+        run: dotnet workload install maui-windows
+
+      - name: Publish app
+        shell: bash
+        run: >
+          dotnet publish "$PROJECT" -c Release
+          -f net9.0-windows10.0.19041.0
+          -p:TargetFrameworks=net9.0-windows10.0.19041.0
+          -p:SelfContained=true
+          -p:ApplicationDisplayVersion=$VERSION
+          -p:ApplicationVersion=${{ github.run_number }}
+          -o publish/windows
+
+      - name: Build installer (Inno Setup)
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe")) { choco install innosetup -y --no-progress }
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DMyAppVersion=$env:VERSION" "/DSourceDir=..\publish\windows" installer\SubscriptionTracker.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: dist/*.exe
+          if-no-files-found: error
+
+  android:
+    name: Android app (.apk)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: microsoft
+          java-version: "17"
+
+      - name: Version
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then V="${GITHUB_REF_NAME#v}"; else V="0.0.${{ github.run_number }}"; fi
+          echo "VERSION=$V" >> "$GITHUB_ENV"
+
+      - name: Install MAUI workload
+        run: dotnet workload install maui-android
+
+      # Signing key. For stable updates add repository secrets ANDROID_KEYSTORE_BASE64 and
+      # ANDROID_KEYSTORE_PASSWORD (see README). Without them a temporary key is generated.
+      - name: Prepare signing key
+        shell: bash
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          if [[ -n "$KEYSTORE_BASE64" ]]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > release.keystore
+            echo "KEY_PASS=$KEYSTORE_PASSWORD" >> "$GITHUB_ENV"
+          else
+            echo "::warning::ANDROID_KEYSTORE_BASE64 secret is not set - using a temporary signing key"
+            PASS="tmp-$RANDOM-$RANDOM"
+            keytool -genkeypair -v -keystore release.keystore -alias subscriptiontracker -keyalg RSA -keysize 2048 \
+              -validity 10000 -storepass "$PASS" -keypass "$PASS" -dname "CN=Subscription Tracker"
+            echo "KEY_PASS=$PASS" >> "$GITHUB_ENV"
+          fi
+
+      - name: Build APK
+        shell: bash
+        run: >
+          dotnet publish "$PROJECT" -c Release
+          -f net9.0-android
+          -p:TargetFrameworks=net9.0-android
+          -p:AndroidPackageFormat=apk
+          -p:AndroidKeyStore=true
+          -p:AndroidSigningKeyStore=$GITHUB_WORKSPACE/release.keystore
+          -p:AndroidSigningKeyAlias=subscriptiontracker
+          -p:AndroidSigningKeyPass=env:KEY_PASS
+          -p:AndroidSigningStorePass=env:KEY_PASS
+          -p:ApplicationDisplayVersion=$VERSION
+          -p:ApplicationVersion=${{ github.run_number }}
+          -o publish/android
+
+      - name: Rename APK
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp "$(ls publish/android/*-Signed.apk | head -n 1)" "dist/SubscriptionTracker-$VERSION.apk"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: dist/*.apk
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub release
+    if: github.ref_type == 'tag'
+    needs: [windows, android]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: Subscription Tracker ${{ github.ref_name }}
+          files: dist/*
+          body: |
+            ## Download
+
+            | Platform | File | How to install |
+            |---|---|---|
+            | **Windows 10/11** (x64) | `SubscriptionTracker-Setup-*.exe` | Run the installer. No admin rights needed. If SmartScreen warns, click **More info → Run anyway**. |
+            | **Android 5+** | `SubscriptionTracker-*.apk` | Open the file on your phone and allow installing apps from this source. |
+
+            On Windows the app starts in the background at sign-in, so payment reminders arrive on time
+            (you can turn this off in **Settings → Run in background at Windows startup**).

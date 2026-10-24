@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:SubscriptionTracker.ViewModels"
+             xmlns:m="clr-namespace:SubscriptionTracker.Models"
+             xmlns:c="clr-namespace:SubscriptionTracker.Controls"
+             x:Class="SubscriptionTracker.Views.StatisticsPage"
+             x:DataType="vm:StatisticsViewModel"
+             Title="Statistics">
+  <ScrollView>
+    <VerticalStackLayout Padding="16" Spacing="14" MaximumWidthRequest="760">
+
+      <Border Style="{StaticResource Card}">
+        <VerticalStackLayout Spacing="6">
+          <Label Text="What your subscriptions cost" Style="{StaticResource Header}" />
+          <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+            <VerticalStackLayout>
+              <Label Text="{Binding PerDay, StringFormat='{0:0.0} ₴'}" Style="{StaticResource BigNumber}" FontSize="24" />
+              <Label Text="per day" Style="{StaticResource Muted}" />
+            </VerticalStackLayout>
+            <VerticalStackLayout Grid.Column="1">
+              <Label Text="{Binding PerMonth, StringFormat='{0:N0} ₴'}" Style="{StaticResource BigNumber}" FontSize="24" />
+              <Label Text="per month" Style="{StaticResource Muted}" />
+            </VerticalStackLayout>
+            <VerticalStackLayout Grid.Column="2">
+              <Label Text="{Binding PerYear, StringFormat='{0:N0} ₴'}" Style="{StaticResource BigNumber}" FontSize="24" />
+              <Label Text="per year" Style="{StaticResource Muted}" />
+            </VerticalStackLayout>
+          </Grid>
+        </VerticalStackLayout>
+      </Border>
+
+      <Label Text="{Binding InsightText}" FontSize="15" />
+
+      <Label Text="Monthly spending by category (in ₴)" Style="{StaticResource Header}" />
+      <Border Style="{StaticResource Card}">
+        <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding CategoryStats}">
+          <BindableLayout.EmptyView>
+            <Label Text="No data yet." Style="{StaticResource Muted}" />
+          </BindableLayout.EmptyView>
+          <BindableLayout.ItemTemplate>
+            <DataTemplate x:DataType="vm:CategoryStat">
+              <VerticalStackLayout Spacing="4">
+                <Grid ColumnDefinitions="*,Auto,50" ColumnSpacing="10">
+                  <Label Text="{Binding Title}" />
+                  <Label Grid.Column="1" Text="{Binding AmountText}" Style="{StaticResource Strong}" />
+                  <Label Grid.Column="2" Text="{Binding ShareText}" Style="{StaticResource Muted}" HorizontalTextAlignment="End" />
+                </Grid>
+                <ProgressBar Progress="{Binding Share}" />
+              </VerticalStackLayout>
+            </DataTemplate>
+          </BindableLayout.ItemTemplate>
+        </VerticalStackLayout>
+      </Border>
+
+      <Label Text="Most expensive" Style="{StaticResource Header}" />
+      <Border Style="{StaticResource Card}">
+        <VerticalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding TopSubscriptions}">
+          <BindableLayout.EmptyView>
+            <Label Text="No data yet." Style="{StaticResource Muted}" />
+          </BindableLayout.EmptyView>
+          <BindableLayout.ItemTemplate>
+            <DataTemplate x:DataType="m:Subscription">
+              <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                <c:LogoView WidthRequest="30" HeightRequest="30" VerticalOptions="Center" />
+                <Label Grid.Column="1" Text="{Binding Name}" VerticalOptions="Center" />
+                <Label Grid.Column="2" Text="{Binding MonthlyUahText}" Style="{StaticResource Strong}" VerticalOptions="Center" />
+              </Grid>
+            </DataTemplate>
+          </BindableLayout.ItemTemplate>
+        </VerticalStackLayout>
+      </Border>
+
+      <Label Text="{Binding TotalSpentText}" Style="{StaticResource Muted}" />
+    </VerticalStackLayout>
+  </ScrollView>
+</ContentPage>

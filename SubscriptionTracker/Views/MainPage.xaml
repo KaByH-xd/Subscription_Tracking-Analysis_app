@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:SubscriptionTracker.ViewModels"
+             xmlns:m="clr-namespace:SubscriptionTracker.Models"
+             xmlns:c="clr-namespace:SubscriptionTracker.Controls"
+             x:Class="SubscriptionTracker.Views.MainPage"
+             x:DataType="vm:DashboardViewModel"
+             Title="My Subscriptions">
+  <ScrollView>
+    <VerticalStackLayout Padding="16" Spacing="14" MaximumWidthRequest="760">
+
+      <!-- Totals -->
+      <Border Style="{StaticResource Card}">
+        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="2" ColumnSpacing="12">
+          <Label Text="Monthly spending" Style="{StaticResource Muted}" />
+          <Label Grid.Column="1" Text="Yearly spending" Style="{StaticResource Muted}" />
+          <Label Grid.Row="1" Text="{Binding MonthlySpending, StringFormat='{0:N0} ₴'}" Style="{StaticResource BigNumber}" />
+          <Label Grid.Row="1" Grid.Column="1" Text="{Binding YearlySpending, StringFormat='{0:N0} ₴'}" Style="{StaticResource BigNumber}" />
+          <Label Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding SummaryText}" Style="{StaticResource Muted}" Margin="0,6,0,0" />
+        </Grid>
+      </Border>
+
+      <Label Text="{Binding NextPaymentText}" Style="{StaticResource Strong}" FontSize="15" />
+
+      <!-- Budget -->
+      <Border Style="{StaticResource Card}" IsVisible="{Binding HasBudget}">
+        <VerticalStackLayout Spacing="8">
+          <Label Text="Monthly budget" Style="{StaticResource Header}" />
+          <ProgressBar Progress="{Binding BudgetProgress}" ProgressColor="{Binding BudgetColor}" />
+          <Label Text="{Binding BudgetText}" TextColor="{Binding BudgetColor}" FontFamily="PoppinsSemiBold" />
+        </VerticalStackLayout>
+      </Border>
+
+      <!-- Reminders -->
+      <Border Style="{StaticResource Card}" IsVisible="{Binding HasReminders}" Stroke="{StaticResource Warning}" StrokeThickness="2">
+        <VerticalStackLayout Spacing="8">
+          <Label Text="{Binding RemindersTitle}" Style="{StaticResource Header}" />
+          <VerticalStackLayout Spacing="6" BindableLayout.ItemsSource="{Binding Reminders}">
+            <BindableLayout.ItemTemplate>
+              <DataTemplate x:DataType="m:Subscription">
+                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
+                  <Label Text="{Binding Name}" Style="{StaticResource Strong}" />
+                  <Label Grid.Column="1" Text="{Binding AmountText}" />
+                  <Label Grid.Column="2" Text="{Binding DaysLeftText}" TextColor="{StaticResource Warning}" FontFamily="PoppinsSemiBold" />
+                </Grid>
+              </DataTemplate>
+            </BindableLayout.ItemTemplate>
+          </VerticalStackLayout>
+        </VerticalStackLayout>
+      </Border>
+
+      <!-- Upcoming payments -->
+      <Label Text="Upcoming payments" Style="{StaticResource Header}" />
+      <Border Style="{StaticResource Card}">
+        <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding Upcoming}">
+          <BindableLayout.EmptyView>
+            <Label Text="No active subscriptions yet. Add one, or load demo data in Settings." Style="{StaticResource Muted}" />
+          </BindableLayout.EmptyView>
+          <BindableLayout.ItemTemplate>
+            <DataTemplate x:DataType="m:Subscription">
+              <Grid ColumnDefinitions="Auto,*,Auto,100" ColumnSpacing="12">
+                <c:LogoView WidthRequest="34" HeightRequest="34" VerticalOptions="Center" />
+                <Label Grid.Column="1" Text="{Binding Name}" VerticalOptions="Center" />
+                <Label Grid.Column="2" Text="{Binding AmountText}" Style="{StaticResource Strong}" VerticalOptions="Center" />
+                <Label Grid.Column="3" Text="{Binding DaysLeftText}" Style="{StaticResource Muted}" HorizontalTextAlignment="End" VerticalOptions="Center" />
+              </Grid>
+            </DataTemplate>
+          </BindableLayout.ItemTemplate>
+        </VerticalStackLayout>
+      </Border>
+
+      <Button Text="＋ Add subscription" Command="{Binding AddCommand}" />
+    </VerticalStackLayout>
+  </ScrollView>
+</ContentPage>
