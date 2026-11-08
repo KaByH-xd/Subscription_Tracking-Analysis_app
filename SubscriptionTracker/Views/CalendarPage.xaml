@@ -31,16 +31,34 @@
           <FlexLayout Wrap="Wrap" Direction="Row" AlignItems="Start" BindableLayout.ItemsSource="{Binding Days}">
             <BindableLayout.ItemTemplate>
               <DataTemplate x:DataType="vm:CalendarDay">
-                <Border FlexLayout.Basis="14.2857%" HeightRequest="50" StrokeThickness="0"
+                <Border FlexLayout.Basis="14.2857%" HeightRequest="56" StrokeThickness="0"
                         StrokeShape="RoundRectangle 10" BackgroundColor="{Binding Background}" Padding="0">
                   <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding SelectCommand}" />
                   </Border.GestureRecognizers>
-                  <VerticalStackLayout VerticalOptions="Center" Spacing="0">
+                  <VerticalStackLayout VerticalOptions="Center" Spacing="2">
                     <Label Text="{Binding DayText}" HorizontalTextAlignment="Center"
                            TextColor="{Binding Foreground}" FontFamily="{Binding DayFont}" />
-                    <Label Text="●" HorizontalTextAlignment="Center" FontSize="10"
-                           TextColor="{StaticResource Danger}" IsVisible="{Binding HasPayments}" />
+                    <!-- Small logos of the subscriptions charged on this day -->
+                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="2" HeightRequest="16"
+                                           IsVisible="{Binding HasPayments}">
+                      <HorizontalStackLayout Spacing="2" BindableLayout.ItemsSource="{Binding Icons}">
+                        <BindableLayout.ItemTemplate>
+                          <DataTemplate x:DataType="m:Subscription">
+                            <Grid WidthRequest="16" HeightRequest="16">
+                              <Border IsVisible="{Binding HasLogo}" BackgroundColor="White" StrokeThickness="0"
+                                      StrokeShape="RoundRectangle 4" Padding="1">
+                                <Image Source="{Binding Logo}" Aspect="AspectFit" />
+                              </Border>
+                              <Label Text="{Binding Icon}" IsVisible="{Binding ShowEmoji}" FontSize="11"
+                                     HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Grid>
+                          </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                      </HorizontalStackLayout>
+                      <Label Text="{Binding MoreText}" IsVisible="{Binding HasMore}" FontSize="10"
+                             TextColor="{Binding Foreground}" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
                   </VerticalStackLayout>
                 </Border>
               </DataTemplate>

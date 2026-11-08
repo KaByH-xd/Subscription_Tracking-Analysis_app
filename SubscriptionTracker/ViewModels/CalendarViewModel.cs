@@ -32,6 +32,12 @@ public partial class CalendarDay : ObservableObject
 
     public string DayText => Date.Day.ToString();
     public bool HasPayments => Payments.Count > 0;
+
+    /// <summary>Subscriptions shown as small icons under the date (at most 3, the rest as "+N").</summary>
+    public IEnumerable<Subscription> Icons => Payments.Select(p => p.Subscription).Take(MaxIcons);
+    public bool HasMore => Payments.Count > MaxIcons;
+    public string MoreText => $"+{Payments.Count - MaxIcons}";
+    private const int MaxIcons = 3;
     public bool IsToday => Date.Date == DateTime.Today;
     public string DayFont => IsToday || HasPayments ? "PoppinsSemiBold" : "PoppinsRegular";
 
