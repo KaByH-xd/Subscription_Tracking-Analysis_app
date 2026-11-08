@@ -64,7 +64,7 @@ public class UpdateService
     {
         var dir = Path.Combine(FileSystem.CacheDirectory, "updates");
         Directory.CreateDirectory(dir);
-        foreach (var old in Directory.GetFiles(dir)) TryDelete(old);
+        foreach (var old in Directory.GetFiles(dir).Where(f => !f.EndsWith(".log"))) TryDelete(old);
         var path = Path.Combine(dir, update.AssetName);
 
         using (var response = await Http.GetAsync(update.DownloadUrl, HttpCompletionOption.ResponseHeadersRead, ct))
@@ -110,7 +110,9 @@ public class UpdateService
     /// </summary>
     public static void StartInstaller(string installerPath, bool restartInBackground)
     {
-        var args = "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /CLOSEAPPLICATIONS";
+        // The installer closes all running copies of the app itself (see PrepareToInstall in the .iss)
+        var log = Path.Combine(Path.GetDirectoryName(installerPath)!, "install.log");
+        var args = $"/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /CLOSEAPPLICATIONS /LOG=\"{log}\"";
         if (restartInBackground) args += " /LAUNCHARGS=--background";
         System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(installerPath, args) { UseShellExecute = true });
     }

@@ -5,7 +5,7 @@
 #define MyAppName "Subscription Tracker"
 #define MyAppExeName "SubscriptionTracker.exe"
 #ifndef MyAppVersion
-  #define MyAppVersion "1.3.0"
+  #define MyAppVersion "1.3.1"
 #endif
 #ifndef SourceDir
   #define SourceDir "..\publish\windows"
@@ -55,6 +55,19 @@ Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#MyAppName}}
 ; Silent update started by the app itself: start the new version again
 ; (with /LAUNCHARGS=--background when the update was installed by the background process)
 Filename: "{app}\{#MyAppExeName}"; Parameters: "{param:LAUNCHARGS|}"; Flags: nowait; Check: WizardSilent
+
+[Code]
+// Close every running copy of the app (window and background process) before files are replaced.
+// Restart Manager can't always close the windowless background process, which made silent updates
+// leave the old files in place.
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+var
+  ResultCode: Integer;
+begin
+  Exec(ExpandConstant('{sys}\taskkill.exe'), '/f /im {#MyAppExeName}', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  Sleep(800);
+  Result := '';
+end;
 
 [UninstallRun]
 ; Stop the background process before the files are removed
