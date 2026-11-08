@@ -16,14 +16,22 @@ public partial class SettingsViewModel : ObservableObject
     private readonly IDatabaseService _db;
     private readonly SettingsService _settings;
     private readonly ReminderService _reminders;
+    private readonly UpdateService _updates;
     private bool _loading;
 
-    public SettingsViewModel(IDatabaseService db, SettingsService settings, ReminderService reminders)
+    public SettingsViewModel(IDatabaseService db, SettingsService settings, ReminderService reminders, UpdateService updates)
     {
         _db = db;
         _settings = settings;
         _reminders = reminders;
+        _updates = updates;
     }
+
+    public string VersionText => $"Version {AppVersion.Text}";
+    public bool IsUpdateSupported => UpdateService.IsSupported;
+    public string AutoUpdateHint => DeviceInfo.Platform == DevicePlatform.Android
+        ? "New versions are downloaded automatically; you only confirm the installation."
+        : "New versions are installed automatically (in the background when the window is closed)."; 
 
     public string[] RemindOptions { get; } = { "1 day", "3 days", "7 days" };
     public string RemindHint => $"You'll get a notification every day at {ReminderService.ReminderHour}:00 during this period (e.g. 3, 2 and 1 day before).";
@@ -34,6 +42,8 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private string remindOption = "3 days";
     [ObservableProperty] private bool notificationsEnabled = true;
     [ObservableProperty] private bool startWithWindows = true;
+    [ObservableProperty] private bool autoUpdate = true;
+    [ObservableProperty] private bool isCheckingUpdates;
 
     public bool IsWindows => DeviceInfo.Platform == DevicePlatform.WinUI;
     [ObservableProperty] private string theme = SettingsService.ThemeSystem;
@@ -56,6 +66,11 @@ public partial class SettingsViewModel : ObservableObject
         _ = RescheduleAsync();
     }
 
+    partial void OnAutoUpdateChanged(bool value)
+    {
+        if (!_loading) _settings.AutoUpdate = value;
+    }
+
     partial void OnStartWithWindowsChanged(bool value)
     {
         if (_loading) return;
@@ -75,6 +90,7 @@ public partial class SettingsViewModel : ObservableObject
         RemindOption = _settings.RemindDays switch { 1 => "1 day", 7 => "7 days", _ => "3 days" };
         NotificationsEnabled = _settings.NotificationsEnabled;
         StartWithWindows = _settings.StartWithWindows;
+        AutoUpdate = _settings.AutoUpdate;
         Theme = _settings.Theme;
         _loading = false;
         ShowRates();
@@ -125,6 +141,28 @@ public partial class SettingsViewModel : ObservableObject
         ShowRates();
         if (!ok)
             await Shell.Current.DisplayAlert("Offline", "Couldn't reach the National Bank of Ukraine. Saved rates are used.", "OK");
+    }
+
+    [RelayCommand]
+    private async Task CheckForUpdatesAsync()
+    {
+        IsCheckingUpdates = true;
+        try
+        {
+            var info = await _updates.CheckAsync(force: true);
+            if (info is null)
+                await Shell.Current.DisplayAlert("Up to date", $"You have the latest version ({AppVersion.Text}).", "OK");
+            else
+                await Shell.Current.Navigation.PushModalAsync(new Views.UpdatePage(_updates, info));
+        }
+        catch (Exception ex)
+        {
+            await Shell.Current.DisplayAlert("Couldn't check for updates", ex.Message, "OK");
+        }
+        finally
+        {
+            IsCheckingUpdates = false;
+        }
     }
 
     [RelayCommand]

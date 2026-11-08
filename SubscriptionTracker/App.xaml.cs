@@ -15,6 +15,7 @@ public partial class App : Application
 
 #if WINDOWS
         // Background mode is on by default: reminders arrive on time even with the window closed
+        WinUI.BackgroundMode.MarkWindowOpen();
         WinUI.BackgroundMode.Apply(settings.StartWithWindows);
 #endif
     }

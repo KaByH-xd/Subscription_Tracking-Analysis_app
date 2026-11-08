@@ -71,6 +71,26 @@
         </VerticalStackLayout>
       </Border>
 
+      <!-- Updates -->
+      <Border Style="{StaticResource Card}" IsVisible="{Binding IsUpdateSupported}">
+        <VerticalStackLayout Spacing="6">
+          <Label Text="Updates" Style="{StaticResource Header}" />
+          <Label Text="{Binding VersionText}" Style="{StaticResource Strong}" />
+          <Grid ColumnDefinitions="*,Auto">
+            <VerticalStackLayout>
+              <Label Text="Update automatically" Style="{StaticResource Strong}" />
+              <Label Text="{Binding AutoUpdateHint}" Style="{StaticResource Muted}" />
+            </VerticalStackLayout>
+            <Switch Grid.Column="1" IsToggled="{Binding AutoUpdate}" VerticalOptions="Center" />
+          </Grid>
+          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+            <Button Text="Check for updates" Command="{Binding CheckForUpdatesCommand}" Style="{StaticResource SecondaryButton}" />
+            <ActivityIndicator Grid.Column="1" IsRunning="{Binding IsCheckingUpdates}" IsVisible="{Binding IsCheckingUpdates}"
+                               Color="{StaticResource Primary}" WidthRequest="24" HeightRequest="24" />
+          </Grid>
+        </VerticalStackLayout>
+      </Border>
+
       <!-- Data -->
       <Border Style="{StaticResource Card}">
         <VerticalStackLayout Spacing="8">
@@ -82,7 +102,7 @@
         </VerticalStackLayout>
       </Border>
 
-      <Label Text="Subscription Tracker 1.2 • C# / .NET MAUI / SQLite / MVVM" Style="{StaticResource Muted}" HorizontalTextAlignment="Center" />
+      <Label Text="Subscription Tracker • C# / .NET MAUI / SQLite / MVVM" Style="{StaticResource Muted}" HorizontalTextAlignment="Center" />
     </VerticalStackLayout>
   </ScrollView>
 </ContentPage>

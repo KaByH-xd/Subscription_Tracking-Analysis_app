@@ -5,7 +5,7 @@
 #define MyAppName "Subscription Tracker"
 #define MyAppExeName "SubscriptionTracker.exe"
 #ifndef MyAppVersion
-  #define MyAppVersion "1.2.1"
+  #define MyAppVersion "1.3.0"
 #endif
 #ifndef SourceDir
   #define SourceDir "..\publish\windows"
@@ -52,6 +52,9 @@ Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: 
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#MyAppName}}"; Flags: nowait postinstall skipifsilent
+; Silent update started by the app itself: start the new version again
+; (with /LAUNCHARGS=--background when the update was installed by the background process)
+Filename: "{app}\{#MyAppExeName}"; Parameters: "{param:LAUNCHARGS|}"; Flags: nowait; Check: WizardSilent
 
 [UninstallRun]
 ; Stop the background process before the files are removed

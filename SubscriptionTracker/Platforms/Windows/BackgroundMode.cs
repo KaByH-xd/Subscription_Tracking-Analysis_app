@@ -18,6 +18,8 @@ public static class BackgroundMode
     private const string RunValueName = "SubscriptionTracker";
     private const string MutexName = @"Local\SubscriptionTracker.Background";
     private const string StopEventName = @"Local\SubscriptionTracker.BackgroundStop";
+    private const string WindowMutexName = @"Local\SubscriptionTracker.Window";
+    private static Mutex? _windowMutex;
     private static readonly TimeSpan CheckInterval = TimeSpan.FromMinutes(5);
 
     public static bool IsBackgroundLaunch =>
@@ -88,6 +90,46 @@ public static class BackgroundMode
         if (enabled) Start(); else Stop();
     }
 
+    /// <summary>Called by the app window: lets the background process know that the window is open.</summary>
+    public static void MarkWindowOpen() => _windowMutex ??= new Mutex(false, WindowMutexName);
+
+    private static bool IsWindowOpen()
+    {
+        try
+        {
+            using var _ = Mutex.OpenExisting(WindowMutexName);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Installs a new version silently — only while the app window is closed,
+    /// so the user is never interrupted. Returns true when the installer was started.
+    /// </summary>
+    private static async Task<bool> TryAutoUpdateAsync(SettingsService settings, UpdateService updates)
+    {
+        if (!settings.AutoUpdate || IsWindowOpen()) return false;
+        try
+        {
+            var info = await updates.CheckAsync();
+            if (info is null) return false;
+
+            var installer = await updates.DownloadAsync(info);
+            if (IsWindowOpen()) return false;   // the window was opened meanwhile — it will offer the update
+            UpdateService.StartInstaller(installer, restartInBackground: true);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Auto-update failed: {ex}");
+            return false;
+        }
+    }
+
     /// <summary>Main loop of the background process. Returns when it should exit.</summary>
     public static async Task RunAsync()
     {
@@ -102,6 +144,7 @@ public static class BackgroundMode
         var settings = new SettingsService();
         var reminders = new ReminderService(settings);
         var db = new DatabaseService(new LogoService());
+        var updates = new UpdateService(settings);
 
         while (settings.StartWithWindows)
         {
@@ -113,6 +156,9 @@ public static class BackgroundMode
             {
                 Debug.WriteLine($"Background check failed: {ex}");
             }
+
+            // The installer closes this process and starts the new version
+            if (await TryAutoUpdateAsync(settings, updates)) break;
 
             var stopRequested = await Task.Run(() => stop.WaitOne(CheckInterval));
             if (stopRequested) break;

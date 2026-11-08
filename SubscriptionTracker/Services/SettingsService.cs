@@ -44,6 +44,19 @@ public class SettingsService
         set => Set("start_with_windows", value);
     }
 
+    /// <summary>Check GitHub for new versions and install them.</summary>
+    public bool AutoUpdate
+    {
+        get => Get("auto_update", true);
+        set => Set("auto_update", value);
+    }
+
+    public DateTime LastUpdateCheck
+    {
+        get => new(Get("last_update_check", 0L));
+        set => Set("last_update_check", value.Ticks);
+    }
+
     /// <summary>"System", "Light" or "Dark".</summary>
     public string Theme
     {

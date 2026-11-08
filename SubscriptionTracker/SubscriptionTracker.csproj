@@ -16,8 +16,13 @@
 
     <ApplicationTitle>Subscription Tracker</ApplicationTitle>
     <ApplicationId>com.kursova.subscriptiontracker</ApplicationId>
-    <ApplicationDisplayVersion>1.2.1</ApplicationDisplayVersion>
+    <ApplicationDisplayVersion>1.3.0</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
+    <!-- The same version is embedded in the assembly; the self-updater compares it with GitHub releases -->
+    <Version>$(ApplicationDisplayVersion)</Version>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <!-- Keep reflection-based System.Text.Json working in trimmed Android release builds -->
+    <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
 
     <!-- Run on Windows without MSIX packaging (simpler dotnet build -t:Run) -->
     <WindowsPackageType>None</WindowsPackageType>
