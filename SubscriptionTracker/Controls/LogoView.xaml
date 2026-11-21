@@ -5,13 +5,16 @@
              x:Class="SubscriptionTracker.Controls.LogoView"
              x:DataType="m:Subscription"
              WidthRequest="40" HeightRequest="40">
-  <!-- Service logo; falls back to the category emoji when no logo is available -->
+  <!-- Service logo on a white tile; falls back to the category emoji on a tinted tile -->
   <Grid>
-    <Border IsVisible="{Binding HasLogo}" BackgroundColor="White" StrokeThickness="0"
-            StrokeShape="RoundRectangle 10" Padding="5">
+    <Border IsVisible="{Binding HasLogo}" BackgroundColor="White" StrokeThickness="1"
+            Stroke="{AppThemeBinding Light={StaticResource StrokeLight}, Dark=Transparent}"
+            StrokeShape="RoundRectangle 12" Padding="6">
       <Image Source="{Binding Logo}" Aspect="AspectFit" />
     </Border>
-    <Label Text="{Binding Icon}" IsVisible="{Binding ShowEmoji}" FontSize="22"
-           HorizontalOptions="Center" VerticalOptions="Center" />
+    <Border IsVisible="{Binding ShowEmoji}" BackgroundColor="{Binding CategorySoftColor}" StrokeThickness="0"
+            StrokeShape="RoundRectangle 12">
+      <Label Text="{Binding Icon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+    </Border>
   </Grid>
 </ContentView>

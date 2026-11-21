@@ -6,71 +6,144 @@
              xmlns:c="clr-namespace:SubscriptionTracker.Controls"
              x:Class="SubscriptionTracker.Views.MainPage"
              x:DataType="vm:DashboardViewModel"
-             Title="My Subscriptions">
+             Title="Home">
   <ScrollView>
-    <VerticalStackLayout Padding="16" Spacing="14" MaximumWidthRequest="760">
+    <VerticalStackLayout Padding="{OnIdiom Phone='16,4,16,24', Default='28,8,28,32'}" Spacing="16" MaximumWidthRequest="1180">
 
-      <!-- Totals -->
-      <Border Style="{StaticResource Card}">
-        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="2" ColumnSpacing="12">
-          <Label Text="Monthly spending" Style="{StaticResource Muted}" />
-          <Label Grid.Column="1" Text="Yearly spending" Style="{StaticResource Muted}" />
-          <Label Grid.Row="1" Text="{Binding MonthlySpending, StringFormat='{0:N0} ₴'}" Style="{StaticResource BigNumber}" />
-          <Label Grid.Row="1" Grid.Column="1" Text="{Binding YearlySpending, StringFormat='{0:N0} ₴'}" Style="{StaticResource BigNumber}" />
-          <Label Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding SummaryText}" Style="{StaticResource Muted}" Margin="0,6,0,0" />
+      <!-- ============ Hero: totals ============ -->
+      <Border Style="{StaticResource HeroCard}">
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="4">
+          <Label Text="Monthly spending" Style="{StaticResource HeroCaption}" />
+          <Label Grid.Row="1" Text="{Binding MonthlySpending, StringFormat='{0:N0} ₴'}" Style="{StaticResource HeroNumber}" />
+          <Label Grid.Row="2" Text="{Binding NextPaymentText}" Style="{StaticResource HeroCaption}" FontFamily="PoppinsRegular" />
+
+          <!-- Add button: top-right on PC, below the numbers on a phone -->
+          <Button Grid.RowSpan="2" Grid.Column="1" Text="Add subscription" Style="{StaticResource HeroButton}"
+                  ImageSource="ic_plus.png" ContentLayout="Left,6" Command="{Binding AddCommand}"
+                  VerticalOptions="Start" IsVisible="{OnIdiom Phone=False, Default=True}" />
+
+          <Grid Grid.Row="3" Grid.ColumnSpan="2" ColumnDefinitions="*,*,*" ColumnSpacing="10" Margin="0,14,0,0">
+            <Border BackgroundColor="#26FFFFFF" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="12,8">
+              <VerticalStackLayout>
+                <Label Text="Per year" Style="{StaticResource HeroCaption}" FontSize="12" />
+                <Label Text="{Binding YearlySpending, StringFormat='{0:N0} ₴'}" TextColor="White" FontFamily="PoppinsSemiBold" FontSize="{OnIdiom Phone=14, Default=17}" />
+              </VerticalStackLayout>
+            </Border>
+            <Border Grid.Column="1" BackgroundColor="#26FFFFFF" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="12,8">
+              <VerticalStackLayout>
+                <Label Text="Per day" Style="{StaticResource HeroCaption}" FontSize="12" />
+                <Label Text="{Binding PerDay, StringFormat='{0:0.0} ₴'}" TextColor="White" FontFamily="PoppinsSemiBold" FontSize="{OnIdiom Phone=14, Default=17}" />
+              </VerticalStackLayout>
+            </Border>
+            <Border Grid.Column="2" BackgroundColor="#26FFFFFF" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="12,8">
+              <VerticalStackLayout>
+                <Label Text="Active" Style="{StaticResource HeroCaption}" FontSize="12" />
+                <Label Text="{Binding ActiveCount}" TextColor="White" FontFamily="PoppinsSemiBold" FontSize="{OnIdiom Phone=14, Default=17}" />
+              </VerticalStackLayout>
+            </Border>
+          </Grid>
         </Grid>
       </Border>
 
-      <Label Text="{Binding NextPaymentText}" Style="{StaticResource Strong}" FontSize="15" />
+      <Button Text="Add subscription" ImageSource="ic_plus.png" ContentLayout="Left,6"
+              Command="{Binding AddCommand}" IsVisible="{OnIdiom Phone=True, Default=False}" />
 
-      <!-- Budget -->
-      <Border Style="{StaticResource Card}" IsVisible="{Binding HasBudget}">
-        <VerticalStackLayout Spacing="8">
-          <Label Text="Monthly budget" Style="{StaticResource Header}" />
-          <ProgressBar Progress="{Binding BudgetProgress}" ProgressColor="{Binding BudgetColor}" />
-          <Label Text="{Binding BudgetText}" TextColor="{Binding BudgetColor}" FontFamily="PoppinsSemiBold" />
-        </VerticalStackLayout>
-      </Border>
+      <!-- Phone: one column in this order. PC: Upcoming on the left, reminders and budget on the right. -->
+      <c:AdaptiveColumns Spacing="16" Breakpoint="780" FirstColumnShare="0.56">
 
-      <!-- Reminders -->
-      <Border Style="{StaticResource Card}" IsVisible="{Binding HasReminders}" Stroke="{StaticResource Warning}" StrokeThickness="2">
-        <VerticalStackLayout Spacing="8">
-          <Label Text="{Binding RemindersTitle}" Style="{StaticResource Header}" />
-          <VerticalStackLayout Spacing="6" BindableLayout.ItemsSource="{Binding Reminders}">
-            <BindableLayout.ItemTemplate>
-              <DataTemplate x:DataType="m:Subscription">
-                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
-                  <Label Text="{Binding Name}" Style="{StaticResource Strong}" />
-                  <Label Grid.Column="1" Text="{Binding AmountText}" />
-                  <Label Grid.Column="2" Text="{Binding DaysLeftText}" TextColor="{StaticResource Warning}" FontFamily="PoppinsSemiBold" />
-                </Grid>
-              </DataTemplate>
-            </BindableLayout.ItemTemplate>
+        <!-- ============ Reminders ============ -->
+        <Border c:AdaptiveColumns.Column="1" Style="{StaticResource Card}" IsVisible="{Binding HasReminders}"
+                BackgroundColor="{AppThemeBinding Light={StaticResource WarningSoft}, Dark={StaticResource WarningSoftDark}}"
+                Stroke="{StaticResource Warning}">
+          <VerticalStackLayout Spacing="12">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+              <Image Source="tile_bell.png" Style="{StaticResource SectionIcon}" />
+              <Label Grid.Column="1" Text="{Binding RemindersTitle}" Style="{StaticResource Header}" />
+            </Grid>
+            <VerticalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding Reminders}">
+              <BindableLayout.ItemTemplate>
+                <DataTemplate x:DataType="m:Subscription">
+                  <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                    <c:LogoView WidthRequest="32" HeightRequest="32" VerticalOptions="Center" />
+                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="-2">
+                      <Label Text="{Binding Name}" Style="{StaticResource Strong}" />
+                      <Label Text="{Binding AmountText}" Style="{StaticResource Muted}" FontSize="12" />
+                    </VerticalStackLayout>
+                    <Label Grid.Column="2" Text="{Binding DaysLeftText}" TextColor="{StaticResource Warning}"
+                           FontFamily="PoppinsSemiBold" VerticalOptions="Center" />
+                  </Grid>
+                </DataTemplate>
+              </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
           </VerticalStackLayout>
-        </VerticalStackLayout>
-      </Border>
+        </Border>
 
-      <!-- Upcoming payments -->
-      <Label Text="Upcoming payments" Style="{StaticResource Header}" />
-      <Border Style="{StaticResource Card}">
-        <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding Upcoming}">
-          <BindableLayout.EmptyView>
-            <Label Text="No active subscriptions yet. Add one, or load demo data in Settings." Style="{StaticResource Muted}" />
-          </BindableLayout.EmptyView>
-          <BindableLayout.ItemTemplate>
-            <DataTemplate x:DataType="m:Subscription">
-              <Grid ColumnDefinitions="Auto,*,Auto,100" ColumnSpacing="12">
-                <c:LogoView WidthRequest="34" HeightRequest="34" VerticalOptions="Center" />
-                <Label Grid.Column="1" Text="{Binding Name}" VerticalOptions="Center" />
-                <Label Grid.Column="2" Text="{Binding AmountText}" Style="{StaticResource Strong}" VerticalOptions="Center" />
-                <Label Grid.Column="3" Text="{Binding DaysLeftText}" Style="{StaticResource Muted}" HorizontalTextAlignment="End" VerticalOptions="Center" />
-              </Grid>
-            </DataTemplate>
-          </BindableLayout.ItemTemplate>
-        </VerticalStackLayout>
-      </Border>
+        <!-- ============ Budget ============ -->
+        <Border c:AdaptiveColumns.Column="1" Style="{StaticResource Card}" IsVisible="{Binding HasBudget}">
+          <VerticalStackLayout Spacing="12">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+              <Image Source="tile_budget.png" Style="{StaticResource SectionIcon}" />
+              <Label Grid.Column="1" Text="Monthly budget" Style="{StaticResource Header}" />
+            </Grid>
+            <ProgressBar Progress="{Binding BudgetProgress}" ProgressColor="{Binding BudgetColor}" HeightRequest="8" />
+            <Label Text="{Binding BudgetText}" TextColor="{Binding BudgetColor}" FontFamily="PoppinsSemiBold" />
+          </VerticalStackLayout>
+        </Border>
 
-      <Button Text="＋ Add subscription" Command="{Binding AddCommand}" />
+        <!-- ============ Upcoming payments ============ -->
+        <Border c:AdaptiveColumns.Column="0" Style="{StaticResource Card}">
+          <VerticalStackLayout Spacing="14">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+              <Image Source="tile_clock.png" Style="{StaticResource SectionIcon}" />
+              <Label Grid.Column="1" Text="Upcoming payments" Style="{StaticResource Header}" />
+              <Label Grid.Column="2" Text="See all" FontFamily="PoppinsSemiBold" VerticalOptions="Center" Padding="8,6"
+                     TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}">
+                <Label.GestureRecognizers>
+                  <TapGestureRecognizer Command="{Binding SeeAllCommand}" />
+                </Label.GestureRecognizers>
+              </Label>
+            </Grid>
+
+            <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Upcoming}">
+              <BindableLayout.EmptyView>
+                <VerticalStackLayout Spacing="6" Padding="0,10">
+                  <Image Source="tile_subscriptions.png" WidthRequest="48" HeightRequest="48" />
+                  <Label Text="No active subscriptions yet" Style="{StaticResource Strong}" HorizontalTextAlignment="Center" />
+                  <Label Text="Add one, or load demo data in Settings." Style="{StaticResource Muted}" HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+              </BindableLayout.EmptyView>
+              <BindableLayout.ItemTemplate>
+                <DataTemplate x:DataType="m:Subscription">
+                  <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                    <c:LogoView WidthRequest="42" HeightRequest="42" VerticalOptions="Center" />
+                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="-2">
+                      <Label Text="{Binding Name}" Style="{StaticResource Strong}" LineBreakMode="TailTruncation" />
+                      <Label Text="{Binding NextPaymentDate, StringFormat='{0:ddd, MMM d}'}" Style="{StaticResource Muted}" FontSize="12" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="3">
+                      <Label Text="{Binding AmountText}" Style="{StaticResource Strong}" HorizontalTextAlignment="End" />
+                      <Border Style="{StaticResource Chip}" HorizontalOptions="End" Padding="8,1">
+                        <Border.Triggers>
+                          <DataTrigger TargetType="Border" Binding="{Binding IsDueSoon}" Value="True">
+                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource WarningSoft}, Dark={StaticResource WarningSoftDark}}" />
+                          </DataTrigger>
+                        </Border.Triggers>
+                        <Label Text="{Binding DaysLeftText}" Style="{StaticResource ChipText}" FontSize="11">
+                          <Label.Triggers>
+                            <DataTrigger TargetType="Label" Binding="{Binding IsDueSoon}" Value="True">
+                              <Setter Property="TextColor" Value="{StaticResource Warning}" />
+                            </DataTrigger>
+                          </Label.Triggers>
+                        </Label>
+                      </Border>
+                    </VerticalStackLayout>
+                  </Grid>
+                </DataTemplate>
+              </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+          </VerticalStackLayout>
+        </Border>
+      </c:AdaptiveColumns>
     </VerticalStackLayout>
   </ScrollView>
 </ContentPage>

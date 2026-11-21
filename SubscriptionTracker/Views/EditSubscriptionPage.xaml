@@ -8,72 +8,106 @@
              x:DataType="vm:EditSubscriptionViewModel"
              Title="{Binding PageTitle}">
   <ScrollView>
-    <VerticalStackLayout Padding="16" Spacing="6" MaximumWidthRequest="600">
+    <VerticalStackLayout Padding="{OnIdiom Phone='16,4,16,24', Default='28,8,28,32'}" Spacing="16" MaximumWidthRequest="720">
+
+      <!-- ============ Service ============ -->
       <Border Style="{StaticResource Card}">
-        <VerticalStackLayout Spacing="6">
+        <VerticalStackLayout Spacing="8">
           <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
             <!-- Logo preview -->
-            <Grid WidthRequest="56" HeightRequest="56" VerticalOptions="End">
-              <Border IsVisible="{Binding HasLogoPreview}" BackgroundColor="White" StrokeThickness="0"
-                      StrokeShape="RoundRectangle 12" Padding="7">
+            <Grid WidthRequest="64" HeightRequest="64" VerticalOptions="End">
+              <Border IsVisible="{Binding HasLogoPreview}" BackgroundColor="White" StrokeThickness="1"
+                      Stroke="{AppThemeBinding Light={StaticResource StrokeLight}, Dark=Transparent}"
+                      StrokeShape="RoundRectangle 16" Padding="9">
                 <Image Source="{Binding LogoPreview}" Aspect="AspectFit" />
               </Border>
-              <Label Text="{Binding CategoryIcon}" IsVisible="{Binding NoLogoPreview}" FontSize="30"
-                     HorizontalOptions="Center" VerticalOptions="Center" />
+              <Border IsVisible="{Binding NoLogoPreview}" StrokeThickness="0" StrokeShape="RoundRectangle 16"
+                      BackgroundColor="{AppThemeBinding Light={StaticResource ChipLight}, Dark={StaticResource ChipDark}}">
+                <Label Text="{Binding CategoryIcon}" FontSize="30" HorizontalOptions="Center" VerticalOptions="Center" />
+              </Border>
             </Grid>
             <VerticalStackLayout Grid.Column="1" Spacing="6">
-              <Label Text="Service name" Style="{StaticResource Muted}" />
-              <Entry Text="{Binding Name}" Placeholder="e.g. Spotify" />
+              <Label Text="Service name" Style="{StaticResource Caption}" />
+              <Border Style="{StaticResource Field}">
+                <Entry Text="{Binding Name}" Placeholder="e.g. Spotify" />
+              </Border>
             </VerticalStackLayout>
           </Grid>
 
-          <Label Text="Website (used for the logo)" Style="{StaticResource Muted}" />
-          <Entry Text="{Binding Website}" Placeholder="e.g. spotify.com" Keyboard="Url" />
+          <Label Text="Website (used for the logo)" Style="{StaticResource Caption}" Margin="0,6,0,0" />
+          <Border Style="{StaticResource Field}">
+            <Entry Text="{Binding Website}" Placeholder="e.g. spotify.com" Keyboard="Url" />
+          </Border>
 
-          <Label Text="Category" Style="{StaticResource Muted}" />
-          <Picker ItemsSource="{Binding CategoryList}" SelectedItem="{Binding Category}" />
+          <Label Text="Category" Style="{StaticResource Caption}" Margin="0,6,0,0" />
+          <Border Style="{StaticResource Field}">
+            <Picker ItemsSource="{Binding CategoryList}" SelectedItem="{Binding Category}" />
+          </Border>
+        </VerticalStackLayout>
+      </Border>
 
-          <Grid ColumnDefinitions="*,110,*" ColumnSpacing="12">
+      <!-- ============ Price and dates ============ -->
+      <Border Style="{StaticResource Card}">
+        <VerticalStackLayout Spacing="8">
+          <Grid ColumnSpacing="10">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="{OnIdiom Phone=96, Default=120}" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
             <VerticalStackLayout Spacing="6">
-              <Label Text="Price" Style="{StaticResource Muted}" />
-              <Entry Text="{Binding PriceText}" Keyboard="Numeric" Placeholder="119" />
+              <Label Text="Price" Style="{StaticResource Caption}" />
+              <Border Style="{StaticResource Field}">
+                <Entry Text="{Binding PriceText}" Keyboard="Numeric" Placeholder="119" />
+              </Border>
             </VerticalStackLayout>
             <VerticalStackLayout Grid.Column="1" Spacing="6">
-              <Label Text="Currency" Style="{StaticResource Muted}" />
-              <Picker ItemsSource="{Binding CurrencyList}" SelectedItem="{Binding Currency}" />
+              <Label Text="Currency" Style="{StaticResource Caption}" />
+              <Border Style="{StaticResource Field}">
+                <Picker ItemsSource="{Binding CurrencyList}" SelectedItem="{Binding Currency}" />
+              </Border>
             </VerticalStackLayout>
             <VerticalStackLayout Grid.Column="2" Spacing="6">
-              <Label Text="Billing period" Style="{StaticResource Muted}" />
-              <Picker ItemsSource="{Binding Periods}" SelectedItem="{Binding BillingPeriod}" />
+              <Label Text="Billing period" Style="{StaticResource Caption}" />
+              <Border Style="{StaticResource Field}">
+                <Picker ItemsSource="{Binding Periods}" SelectedItem="{Binding BillingPeriod}" />
+              </Border>
             </VerticalStackLayout>
           </Grid>
-          <Label Text="{Binding PriceHint}" Style="{StaticResource Muted}" />
+          <Label Text="{Binding PriceHint}" Style="{StaticResource Muted}" FontSize="12" />
 
-          <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+          <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,6,0,0">
             <VerticalStackLayout Spacing="6">
-              <Label Text="Next payment" Style="{StaticResource Muted}" />
-              <DatePicker Date="{Binding NextPaymentDate}" Format="d" MinimumWidthRequest="170" HorizontalOptions="Fill" />
+              <Label Text="Next payment" Style="{StaticResource Caption}" />
+              <Border Style="{StaticResource Field}">
+                <DatePicker Date="{Binding NextPaymentDate}" Format="d" HorizontalOptions="Fill" />
+              </Border>
             </VerticalStackLayout>
             <VerticalStackLayout Grid.Column="1" Spacing="6">
-              <Label Text="Start date" Style="{StaticResource Muted}" />
-              <DatePicker Date="{Binding StartDate}" Format="d" MinimumWidthRequest="170" HorizontalOptions="Fill" />
+              <Label Text="Start date" Style="{StaticResource Caption}" />
+              <Border Style="{StaticResource Field}">
+                <DatePicker Date="{Binding StartDate}" Format="d" HorizontalOptions="Fill" />
+              </Border>
             </VerticalStackLayout>
           </Grid>
 
-          <Label Text="Notes" Style="{StaticResource Muted}" />
-          <Entry Text="{Binding Notes}" Placeholder="e.g. student plan" />
+          <Label Text="Notes" Style="{StaticResource Caption}" Margin="0,6,0,0" />
+          <Border Style="{StaticResource Field}">
+            <Entry Text="{Binding Notes}" Placeholder="e.g. student plan" />
+          </Border>
 
-          <Grid ColumnDefinitions="*,Auto" Margin="0,6,0,0">
-            <VerticalStackLayout>
+          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12" Margin="0,10,0,0">
+            <VerticalStackLayout VerticalOptions="Center">
               <Label Text="Active" Style="{StaticResource Strong}" />
-              <Label Text="Turn off to pause it (paused subscriptions are not counted)" Style="{StaticResource Muted}" />
+              <Label Text="Turn off to pause it (paused subscriptions are not counted)" Style="{StaticResource Muted}" FontSize="12" />
             </VerticalStackLayout>
             <Switch Grid.Column="1" IsToggled="{Binding IsActive}" VerticalOptions="Center" />
           </Grid>
         </VerticalStackLayout>
       </Border>
 
-      <Button Text="Save" Command="{Binding SaveCommand}" Margin="0,10,0,0" />
+      <!-- ============ Actions ============ -->
+      <Button Text="Save" Command="{Binding SaveCommand}" />
       <Button Text="Delete subscription" Command="{Binding DeleteCommand}" IsVisible="{Binding IsEdit}"
               Style="{StaticResource DangerButton}" />
     </VerticalStackLayout>

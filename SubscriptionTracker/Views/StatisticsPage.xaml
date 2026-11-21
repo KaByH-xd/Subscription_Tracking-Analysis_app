@@ -8,70 +8,100 @@
              x:DataType="vm:StatisticsViewModel"
              Title="Statistics">
   <ScrollView>
-    <VerticalStackLayout Padding="16" Spacing="14" MaximumWidthRequest="760">
+    <VerticalStackLayout Padding="{OnIdiom Phone='16,4,16,24', Default='28,8,28,32'}" Spacing="16" MaximumWidthRequest="1180">
 
+      <!-- ============ Key numbers ============ -->
+      <Grid ColumnDefinitions="*,*,*" ColumnSpacing="{OnIdiom Phone=8, Default=16}">
+        <Border Style="{StaticResource Card}">
+          <VerticalStackLayout Spacing="2">
+            <Label Text="Per day" Style="{StaticResource Caption}" />
+            <Label Text="{Binding PerDay, StringFormat='{0:0.0} ₴'}" Style="{StaticResource BigNumber}" FontSize="{OnIdiom Phone=17, Default=26}" />
+          </VerticalStackLayout>
+        </Border>
+        <Border Grid.Column="1" Style="{StaticResource Card}">
+          <VerticalStackLayout Spacing="2">
+            <Label Text="Per month" Style="{StaticResource Caption}" />
+            <Label Text="{Binding PerMonth, StringFormat='{0:N0} ₴'}" Style="{StaticResource BigNumber}" FontSize="{OnIdiom Phone=17, Default=26}"
+                   TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+          </VerticalStackLayout>
+        </Border>
+        <Border Grid.Column="2" Style="{StaticResource Card}">
+          <VerticalStackLayout Spacing="2">
+            <Label Text="Per year" Style="{StaticResource Caption}" />
+            <Label Text="{Binding PerYear, StringFormat='{0:N0} ₴'}" Style="{StaticResource BigNumber}" FontSize="{OnIdiom Phone=17, Default=26}" />
+          </VerticalStackLayout>
+        </Border>
+      </Grid>
+
+      <!-- ============ Insight ============ -->
       <Border Style="{StaticResource Card}">
-        <VerticalStackLayout Spacing="6">
-          <Label Text="What your subscriptions cost" Style="{StaticResource Header}" />
-          <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
-            <VerticalStackLayout>
-              <Label Text="{Binding PerDay, StringFormat='{0:0.0} ₴'}" Style="{StaticResource BigNumber}" FontSize="24" />
-              <Label Text="per day" Style="{StaticResource Muted}" />
-            </VerticalStackLayout>
-            <VerticalStackLayout Grid.Column="1">
-              <Label Text="{Binding PerMonth, StringFormat='{0:N0} ₴'}" Style="{StaticResource BigNumber}" FontSize="24" />
-              <Label Text="per month" Style="{StaticResource Muted}" />
-            </VerticalStackLayout>
-            <VerticalStackLayout Grid.Column="2">
-              <Label Text="{Binding PerYear, StringFormat='{0:N0} ₴'}" Style="{StaticResource BigNumber}" FontSize="24" />
-              <Label Text="per year" Style="{StaticResource Muted}" />
-            </VerticalStackLayout>
-          </Grid>
-        </VerticalStackLayout>
+        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+          <Image Source="tile_insight.png" Style="{StaticResource SectionIcon}" VerticalOptions="Start" />
+          <Label Grid.Column="1" Text="{Binding InsightText}" VerticalOptions="Center" />
+        </Grid>
       </Border>
 
-      <Label Text="{Binding InsightText}" FontSize="15" />
+      <c:AdaptiveColumns Spacing="16" Breakpoint="780" FirstColumnShare="0.55">
 
-      <Label Text="Monthly spending by category (in ₴)" Style="{StaticResource Header}" />
-      <Border Style="{StaticResource Card}">
-        <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding CategoryStats}">
-          <BindableLayout.EmptyView>
-            <Label Text="No data yet." Style="{StaticResource Muted}" />
-          </BindableLayout.EmptyView>
-          <BindableLayout.ItemTemplate>
-            <DataTemplate x:DataType="vm:CategoryStat">
-              <VerticalStackLayout Spacing="4">
-                <Grid ColumnDefinitions="*,Auto,50" ColumnSpacing="10">
-                  <Label Text="{Binding Title}" />
-                  <Label Grid.Column="1" Text="{Binding AmountText}" Style="{StaticResource Strong}" />
-                  <Label Grid.Column="2" Text="{Binding ShareText}" Style="{StaticResource Muted}" HorizontalTextAlignment="End" />
-                </Grid>
-                <ProgressBar Progress="{Binding Share}" />
+        <!-- ============ By category ============ -->
+        <Border c:AdaptiveColumns.Column="0" Style="{StaticResource Card}">
+          <VerticalStackLayout Spacing="16">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+              <Image Source="tile_pie.png" Style="{StaticResource SectionIcon}" />
+              <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="-2">
+                <Label Text="By category" Style="{StaticResource Header}" />
+                <Label Text="Monthly spending in ₴" Style="{StaticResource Muted}" FontSize="12" />
               </VerticalStackLayout>
-            </DataTemplate>
-          </BindableLayout.ItemTemplate>
-        </VerticalStackLayout>
-      </Border>
+            </Grid>
+            <VerticalStackLayout Spacing="14" BindableLayout.ItemsSource="{Binding CategoryStats}">
+              <BindableLayout.EmptyView>
+                <Label Text="No data yet." Style="{StaticResource Muted}" />
+              </BindableLayout.EmptyView>
+              <BindableLayout.ItemTemplate>
+                <DataTemplate x:DataType="vm:CategoryStat">
+                  <VerticalStackLayout Spacing="6">
+                    <Grid ColumnDefinitions="*,Auto,48" ColumnSpacing="10">
+                      <Label Text="{Binding Title}" />
+                      <Label Grid.Column="1" Text="{Binding AmountText}" Style="{StaticResource Strong}" />
+                      <Label Grid.Column="2" Text="{Binding ShareText}" Style="{StaticResource Muted}" HorizontalTextAlignment="End" />
+                    </Grid>
+                    <ProgressBar Progress="{Binding Share}" ProgressColor="{Binding Color}" HeightRequest="8" />
+                  </VerticalStackLayout>
+                </DataTemplate>
+              </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+          </VerticalStackLayout>
+        </Border>
 
-      <Label Text="Most expensive" Style="{StaticResource Header}" />
-      <Border Style="{StaticResource Card}">
-        <VerticalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding TopSubscriptions}">
-          <BindableLayout.EmptyView>
-            <Label Text="No data yet." Style="{StaticResource Muted}" />
-          </BindableLayout.EmptyView>
-          <BindableLayout.ItemTemplate>
-            <DataTemplate x:DataType="m:Subscription">
-              <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
-                <c:LogoView WidthRequest="30" HeightRequest="30" VerticalOptions="Center" />
-                <Label Grid.Column="1" Text="{Binding Name}" VerticalOptions="Center" />
-                <Label Grid.Column="2" Text="{Binding MonthlyUahText}" Style="{StaticResource Strong}" VerticalOptions="Center" />
-              </Grid>
-            </DataTemplate>
-          </BindableLayout.ItemTemplate>
-        </VerticalStackLayout>
-      </Border>
-
-      <Label Text="{Binding TotalSpentText}" Style="{StaticResource Muted}" />
+        <!-- ============ Most expensive ============ -->
+        <Border c:AdaptiveColumns.Column="1" Style="{StaticResource Card}">
+          <VerticalStackLayout Spacing="14">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+              <Image Source="tile_trophy.png" Style="{StaticResource SectionIcon}" />
+              <Label Grid.Column="1" Text="Most expensive" Style="{StaticResource Header}" />
+            </Grid>
+            <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding TopSubscriptions}">
+              <BindableLayout.EmptyView>
+                <Label Text="No data yet." Style="{StaticResource Muted}" />
+              </BindableLayout.EmptyView>
+              <BindableLayout.ItemTemplate>
+                <DataTemplate x:DataType="m:Subscription">
+                  <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                    <c:LogoView WidthRequest="38" HeightRequest="38" VerticalOptions="Center" />
+                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="-2">
+                      <Label Text="{Binding Name}" Style="{StaticResource Strong}" LineBreakMode="TailTruncation" />
+                      <Label Text="{Binding Category}" Style="{StaticResource Muted}" FontSize="12" />
+                    </VerticalStackLayout>
+                    <Label Grid.Column="2" Text="{Binding MonthlyUahText}" Style="{StaticResource Strong}" VerticalOptions="Center" />
+                  </Grid>
+                </DataTemplate>
+              </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+            <BoxView Style="{StaticResource Divider}" />
+            <Label Text="{Binding TotalSpentText}" Style="{StaticResource Muted}" />
+          </VerticalStackLayout>
+        </Border>
+      </c:AdaptiveColumns>
     </VerticalStackLayout>
   </ScrollView>
 </ContentPage>

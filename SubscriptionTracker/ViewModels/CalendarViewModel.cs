@@ -47,14 +47,14 @@ public partial class CalendarDay : ObservableObject
     private bool isSelected;
 
     public Color Background =>
-        IsSelected ? Color.FromArgb("#512BD4") :
-        IsToday ? Color.FromArgb("#33512BD4") :
+        IsSelected ? Color.FromArgb("#5B3FE4") :
+        IsToday ? Color.FromArgb("#335B3FE4") :
         Colors.Transparent;
 
     public Color Foreground =>
         IsSelected ? Colors.White :
-        !IsCurrentMonth ? Color.FromArgb("#9090A0") :
-        Application.Current?.RequestedTheme == AppTheme.Dark ? Color.FromArgb("#F2F2F7") : Color.FromArgb("#1B1B24");
+        !IsCurrentMonth ? Color.FromArgb("#9C9CAE").WithAlpha(0.55f) :
+        Application.Current?.RequestedTheme == AppTheme.Dark ? Color.FromArgb("#F2F2F7") : Color.FromArgb("#17171F");
 }
 
 public partial class CalendarViewModel : ObservableObject

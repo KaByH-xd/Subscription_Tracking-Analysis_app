@@ -10,12 +10,12 @@ namespace SubscriptionTracker.ViewModels;
 public partial class SubscriptionsViewModel : ObservableObject
 {
     private const string AllCategories = "All categories";
-    private const string StatusAll = "All";
+    private const string StatusAll = "All statuses";
     private const string StatusActive = "Active";
     private const string StatusPaused = "Paused";
-    private const string SortByDate = "Next payment";
-    private const string SortByPrice = "Price";
-    private const string SortByName = "Name";
+    private const string SortByDate = "By next payment";
+    private const string SortByPrice = "By price";
+    private const string SortByName = "By name";
 
     private readonly IDatabaseService _db;
     private List<Subscription> _all = new();

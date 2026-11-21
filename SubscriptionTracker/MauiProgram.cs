@@ -1,5 +1,6 @@
 using System.Globalization;
 using Plugin.LocalNotification;
+using SubscriptionTracker.Controls;
 using SubscriptionTracker.Services;
 using SubscriptionTracker.ViewModels;
 using SubscriptionTracker.Views;
@@ -28,6 +29,9 @@ public static class MauiProgram
                 fonts.AddFont("Poppins-SemiBold.ttf", "PoppinsSemiBold");
                 fonts.AddFont("Poppins-Bold.ttf", "PoppinsBold");
             });
+
+        // Same flat, rounded inputs on Windows and Android
+        InputStyling.Apply();
 
         // Services
         builder.Services.AddSingleton<IDatabaseService, DatabaseService>();

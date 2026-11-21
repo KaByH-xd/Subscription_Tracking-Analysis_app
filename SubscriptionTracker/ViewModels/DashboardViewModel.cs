@@ -27,6 +27,8 @@ public partial class DashboardViewModel : ObservableObject
     [ObservableProperty] private decimal yearlySpending;
     [ObservableProperty] private string summaryText = "";
     [ObservableProperty] private string nextPaymentText = "";
+    [ObservableProperty] private decimal perDay;
+    [ObservableProperty] private int activeCount;
 
     [ObservableProperty] private bool hasBudget;
     [ObservableProperty] private double budgetProgress;
@@ -46,12 +48,14 @@ public partial class DashboardViewModel : ObservableObject
 
         MonthlySpending = active.Sum(s => s.MonthlyPriceUah);
         YearlySpending = MonthlySpending * 12;
-        SummaryText = $"Active subscriptions: {active.Count}   •   ≈ {YearlySpending / 365:0.0} ₴ per day";
+        PerDay = YearlySpending / 365;
+        ActiveCount = active.Count;
+        SummaryText = $"Active subscriptions: {active.Count}   •   ≈ {PerDay:0.0} ₴ per day";
 
         var first = active.FirstOrDefault();
         NextPaymentText = first is null
             ? "No active subscriptions"
-            : $"⚠️ Next charge: {first.Name} — {first.DaysLeftText}";
+            : $"Next charge: {first.Name} — {first.DaysLeftText}";
 
         Upcoming.Clear();
         foreach (var s in active.Take(5)) Upcoming.Add(s);
@@ -61,7 +65,7 @@ public partial class DashboardViewModel : ObservableObject
         Reminders.Clear();
         foreach (var s in active.Where(s => s.DaysLeft <= days)) Reminders.Add(s);
         HasReminders = Reminders.Count > 0;
-        RemindersTitle = days == 1 ? "🔔 Due within 1 day" : $"🔔 Due within {days} days";
+        RemindersTitle = days == 1 ? "Due within 1 day" : $"Due within {days} days";
 
         // Budget
         var budget = _settings.MonthlyBudget;
@@ -71,15 +75,18 @@ public partial class DashboardViewModel : ObservableObject
         BudgetProgress = (double)Math.Min(1m, MonthlySpending / budget);
         if (MonthlySpending <= budget)
         {
-            BudgetColor = MonthlySpending / budget > 0.85m ? Color.FromArgb("#E08A00") : Color.FromArgb("#2E9E5B");
+            BudgetColor = MonthlySpending / budget > 0.85m ? Color.FromArgb("#E58A00") : Color.FromArgb("#1FA463");
             BudgetText = $"{MonthlySpending:N0} / {budget:N0} ₴   •   {budget - MonthlySpending:N0} ₴ left";
         }
         else
         {
-            BudgetColor = Color.FromArgb("#D93A3A");
+            BudgetColor = Color.FromArgb("#E0413F");
             BudgetText = $"{MonthlySpending:N0} / {budget:N0} ₴   •   over budget by {MonthlySpending - budget:N0} ₴";
         }
     }
+
+    [RelayCommand]
+    private Task SeeAllAsync() => Shell.Current.GoToAsync("//" + nameof(SubscriptionsPage));
 
     [RelayCommand]
     private Task AddAsync() => Shell.Current.GoToAsync(nameof(EditSubscriptionPage));

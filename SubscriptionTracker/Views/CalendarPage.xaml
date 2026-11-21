@@ -8,74 +8,86 @@
              x:DataType="vm:CalendarViewModel"
              Title="Calendar">
   <ScrollView>
-    <VerticalStackLayout Padding="16" Spacing="12" MaximumWidthRequest="600">
-      <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="8">
-        <Button Text="◀" Command="{Binding PrevMonthCommand}" WidthRequest="52" />
-        <Label Grid.Column="1" Text="{Binding MonthTitle}" Style="{StaticResource Header}"
-               HorizontalTextAlignment="Center" VerticalOptions="Center" />
-        <Button Grid.Column="2" Text="▶" Command="{Binding NextMonthCommand}" WidthRequest="52" />
-        <Button Grid.Column="3" Text="Today" Command="{Binding GoToTodayCommand}" Style="{StaticResource SecondaryButton}" />
-      </Grid>
+    <!-- PC: month grid on the left, day details and all charges on the right -->
+    <c:AdaptiveColumns Padding="{OnIdiom Phone='16,4,16,24', Default='28,8,28,32'}" Spacing="16"
+                       Breakpoint="860" FirstColumnShare="0.6" MaximumWidthRequest="1180">
 
-      <Border Style="{StaticResource Card}" Padding="8">
-        <VerticalStackLayout Spacing="4">
-          <Grid ColumnDefinitions="*,*,*,*,*,*,*">
-            <Label Text="Mon" Style="{StaticResource WeekDay}" />
-            <Label Grid.Column="1" Text="Tue" Style="{StaticResource WeekDay}" />
-            <Label Grid.Column="2" Text="Wed" Style="{StaticResource WeekDay}" />
-            <Label Grid.Column="3" Text="Thu" Style="{StaticResource WeekDay}" />
-            <Label Grid.Column="4" Text="Fri" Style="{StaticResource WeekDay}" />
-            <Label Grid.Column="5" Text="Sat" Style="{StaticResource WeekDay}" />
-            <Label Grid.Column="6" Text="Sun" Style="{StaticResource WeekDay}" />
+      <!-- ============ Month grid ============ -->
+      <Border c:AdaptiveColumns.Column="0" Style="{StaticResource Card}" Padding="{OnIdiom Phone=12, Default=18}">
+        <VerticalStackLayout Spacing="12">
+          <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="8">
+            <Label Text="{Binding MonthTitle}" Style="{StaticResource Header}" FontSize="18" Margin="4,0,0,0" />
+            <Button Grid.Column="1" Text="Today" Command="{Binding GoToTodayCommand}" Style="{StaticResource SecondaryButton}"
+                    Padding="14,0" HeightRequest="44" MinimumHeightRequest="44" />
+            <ImageButton Grid.Column="2" Source="ic_chevron_left.png" Command="{Binding PrevMonthCommand}"
+                         Style="{StaticResource IconButton}" SemanticProperties.Description="Previous month" />
+            <ImageButton Grid.Column="3" Source="ic_chevron_right.png" Command="{Binding NextMonthCommand}"
+                         Style="{StaticResource IconButton}" SemanticProperties.Description="Next month" />
           </Grid>
-          <FlexLayout Wrap="Wrap" Direction="Row" AlignItems="Start" BindableLayout.ItemsSource="{Binding Days}">
-            <BindableLayout.ItemTemplate>
-              <DataTemplate x:DataType="vm:CalendarDay">
-                <Border FlexLayout.Basis="14.2857%" HeightRequest="56" StrokeThickness="0"
-                        StrokeShape="RoundRectangle 10" BackgroundColor="{Binding Background}" Padding="0">
-                  <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding SelectCommand}" />
-                  </Border.GestureRecognizers>
-                  <VerticalStackLayout VerticalOptions="Center" Spacing="2">
-                    <Label Text="{Binding DayText}" HorizontalTextAlignment="Center"
-                           TextColor="{Binding Foreground}" FontFamily="{Binding DayFont}" />
-                    <!-- Small logos of the subscriptions charged on this day -->
-                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="2" HeightRequest="16"
-                                           IsVisible="{Binding HasPayments}">
-                      <HorizontalStackLayout Spacing="2" BindableLayout.ItemsSource="{Binding Icons}">
-                        <BindableLayout.ItemTemplate>
-                          <DataTemplate x:DataType="m:Subscription">
-                            <Grid WidthRequest="16" HeightRequest="16">
-                              <Border IsVisible="{Binding HasLogo}" BackgroundColor="White" StrokeThickness="0"
-                                      StrokeShape="RoundRectangle 4" Padding="1">
-                                <Image Source="{Binding Logo}" Aspect="AspectFit" />
-                              </Border>
-                              <Label Text="{Binding Icon}" IsVisible="{Binding ShowEmoji}" FontSize="11"
-                                     HorizontalOptions="Center" VerticalOptions="Center" />
-                            </Grid>
-                          </DataTemplate>
-                        </BindableLayout.ItemTemplate>
+
+          <VerticalStackLayout Spacing="2">
+            <Grid ColumnDefinitions="*,*,*,*,*,*,*">
+              <Label Text="Mon" Style="{StaticResource WeekDay}" />
+              <Label Grid.Column="1" Text="Tue" Style="{StaticResource WeekDay}" />
+              <Label Grid.Column="2" Text="Wed" Style="{StaticResource WeekDay}" />
+              <Label Grid.Column="3" Text="Thu" Style="{StaticResource WeekDay}" />
+              <Label Grid.Column="4" Text="Fri" Style="{StaticResource WeekDay}" />
+              <Label Grid.Column="5" Text="Sat" Style="{StaticResource WeekDay}" />
+              <Label Grid.Column="6" Text="Sun" Style="{StaticResource WeekDay}" />
+            </Grid>
+            <FlexLayout Wrap="Wrap" Direction="Row" AlignItems="Start" BindableLayout.ItemsSource="{Binding Days}">
+              <BindableLayout.ItemTemplate>
+                <DataTemplate x:DataType="vm:CalendarDay">
+                  <Border FlexLayout.Basis="14.2857%" HeightRequest="{OnIdiom Phone=54, Default=66}" StrokeThickness="0"
+                          StrokeShape="RoundRectangle 12" BackgroundColor="{Binding Background}" Padding="0">
+                    <Border.GestureRecognizers>
+                      <TapGestureRecognizer Command="{Binding SelectCommand}" />
+                    </Border.GestureRecognizers>
+                    <VerticalStackLayout VerticalOptions="Center" Spacing="3">
+                      <Label Text="{Binding DayText}" HorizontalTextAlignment="Center"
+                             TextColor="{Binding Foreground}" FontFamily="{Binding DayFont}" />
+                      <!-- Small logos of the subscriptions charged on this day -->
+                      <HorizontalStackLayout HorizontalOptions="Center" Spacing="2" HeightRequest="16"
+                                             IsVisible="{Binding HasPayments}">
+                        <HorizontalStackLayout Spacing="2" BindableLayout.ItemsSource="{Binding Icons}">
+                          <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="m:Subscription">
+                              <Grid WidthRequest="16" HeightRequest="16">
+                                <Border IsVisible="{Binding HasLogo}" BackgroundColor="White" StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 4" Padding="1">
+                                  <Image Source="{Binding Logo}" Aspect="AspectFit" />
+                                </Border>
+                                <Label Text="{Binding Icon}" IsVisible="{Binding ShowEmoji}" FontSize="11"
+                                       HorizontalOptions="Center" VerticalOptions="Center" />
+                              </Grid>
+                            </DataTemplate>
+                          </BindableLayout.ItemTemplate>
+                        </HorizontalStackLayout>
+                        <Label Text="{Binding MoreText}" IsVisible="{Binding HasMore}" FontSize="10"
+                               TextColor="{Binding Foreground}" VerticalOptions="Center" />
                       </HorizontalStackLayout>
-                      <Label Text="{Binding MoreText}" IsVisible="{Binding HasMore}" FontSize="10"
-                             TextColor="{Binding Foreground}" VerticalOptions="Center" />
-                    </HorizontalStackLayout>
-                  </VerticalStackLayout>
-                </Border>
-              </DataTemplate>
-            </BindableLayout.ItemTemplate>
-          </FlexLayout>
+                    </VerticalStackLayout>
+                  </Border>
+                </DataTemplate>
+              </BindableLayout.ItemTemplate>
+            </FlexLayout>
+          </VerticalStackLayout>
         </VerticalStackLayout>
       </Border>
 
-      <Border Style="{StaticResource Card}">
-        <VerticalStackLayout Spacing="8">
-          <Label Text="{Binding SelectedTitle}" Style="{StaticResource Strong}" />
-          <VerticalStackLayout Spacing="6" BindableLayout.ItemsSource="{Binding SelectedPayments}">
+      <!-- ============ Selected day ============ -->
+      <Border c:AdaptiveColumns.Column="1" Style="{StaticResource Card}">
+        <VerticalStackLayout Spacing="12">
+          <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+            <Image Source="tile_calendar.png" Style="{StaticResource SectionIcon}" />
+            <Label Grid.Column="1" Text="{Binding SelectedTitle}" Style="{StaticResource Header}" />
+          </Grid>
+          <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding SelectedPayments}">
             <BindableLayout.ItemTemplate>
               <DataTemplate x:DataType="vm:PaymentItem">
-                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
-                  <c:LogoView BindingContext="{Binding Subscription}" WidthRequest="28" HeightRequest="28" />
-                  <Label Grid.Column="1" Text="{Binding Title}" VerticalOptions="Center" />
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                  <c:LogoView BindingContext="{Binding Subscription}" WidthRequest="34" HeightRequest="34" />
+                  <Label Grid.Column="1" Text="{Binding Title}" Style="{StaticResource Strong}" VerticalOptions="Center" />
                   <Label Grid.Column="2" Text="{Binding AmountText}" Style="{StaticResource Strong}" VerticalOptions="Center" />
                 </Grid>
               </DataTemplate>
@@ -84,27 +96,34 @@
         </VerticalStackLayout>
       </Border>
 
-      <Label Text="All charges this month" Style="{StaticResource Header}" />
-      <Border Style="{StaticResource Card}">
-        <VerticalStackLayout Spacing="8">
-          <VerticalStackLayout Spacing="6" BindableLayout.ItemsSource="{Binding MonthPayments}">
+      <!-- ============ All charges this month ============ -->
+      <Border c:AdaptiveColumns.Column="1" Style="{StaticResource Card}">
+        <VerticalStackLayout Spacing="12">
+          <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+            <Image Source="tile_clock.png" Style="{StaticResource SectionIcon}" />
+            <Label Grid.Column="1" Text="All charges this month" Style="{StaticResource Header}" />
+          </Grid>
+          <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding MonthPayments}">
             <BindableLayout.EmptyView>
               <Label Text="No charges this month." Style="{StaticResource Muted}" />
             </BindableLayout.EmptyView>
             <BindableLayout.ItemTemplate>
               <DataTemplate x:DataType="vm:PaymentItem">
-                <Grid ColumnDefinitions="100,Auto,*,Auto" ColumnSpacing="10">
-                  <Label Text="{Binding DateText}" Style="{StaticResource Muted}" VerticalOptions="Center" />
-                  <c:LogoView Grid.Column="1" BindingContext="{Binding Subscription}" WidthRequest="28" HeightRequest="28" />
-                  <Label Grid.Column="2" Text="{Binding Title}" VerticalOptions="Center" />
-                  <Label Grid.Column="3" Text="{Binding AmountText}" Style="{StaticResource Strong}" VerticalOptions="Center" />
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                  <c:LogoView BindingContext="{Binding Subscription}" WidthRequest="34" HeightRequest="34" />
+                  <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="-2">
+                    <Label Text="{Binding Title}" Style="{StaticResource Strong}" LineBreakMode="TailTruncation" />
+                    <Label Text="{Binding DateText}" Style="{StaticResource Muted}" FontSize="12" />
+                  </VerticalStackLayout>
+                  <Label Grid.Column="2" Text="{Binding AmountText}" Style="{StaticResource Strong}" VerticalOptions="Center" />
                 </Grid>
               </DataTemplate>
             </BindableLayout.ItemTemplate>
           </VerticalStackLayout>
-          <Label Text="{Binding MonthTotalText}" Style="{StaticResource Strong}" Margin="0,6,0,0" />
+          <BoxView Style="{StaticResource Divider}" />
+          <Label Text="{Binding MonthTotalText}" Style="{StaticResource Strong}" />
         </VerticalStackLayout>
       </Border>
-    </VerticalStackLayout>
+    </c:AdaptiveColumns>
   </ScrollView>
 </ContentPage>

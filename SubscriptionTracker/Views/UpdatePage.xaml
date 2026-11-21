@@ -9,7 +9,7 @@
     <Border Style="{StaticResource Card}" VerticalOptions="Center" HorizontalOptions="Center"
             MaximumWidthRequest="460" Padding="24">
       <VerticalStackLayout Spacing="10">
-        <Label Text="⬆️" FontSize="40" HorizontalTextAlignment="Center" />
+        <Image Source="tile_update.png" WidthRequest="64" HeightRequest="64" HorizontalOptions="Center" />
         <Label Text="{Binding Title}" Style="{StaticResource Header}" HorizontalTextAlignment="Center" />
         <Label Text="{Binding Subtitle}" Style="{StaticResource Muted}" HorizontalTextAlignment="Center" />
         <Label Text="{Binding Hint}" Style="{StaticResource Muted}" HorizontalTextAlignment="Center" />

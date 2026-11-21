@@ -2,107 +2,158 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:SubscriptionTracker.ViewModels"
+             xmlns:c="clr-namespace:SubscriptionTracker.Controls"
              x:Class="SubscriptionTracker.Views.SettingsPage"
              x:DataType="vm:SettingsViewModel"
              Title="Settings">
   <ScrollView>
-    <VerticalStackLayout Padding="16" Spacing="14" MaximumWidthRequest="600">
+    <VerticalStackLayout Padding="{OnIdiom Phone='16,4,16,24', Default='28,8,28,32'}" Spacing="16" MaximumWidthRequest="1180">
+      <c:AdaptiveColumns Spacing="16" Breakpoint="820">
 
-      <!-- Appearance -->
-      <Border Style="{StaticResource Card}">
-        <VerticalStackLayout Spacing="6">
-          <Label Text="Appearance" Style="{StaticResource Header}" />
-          <Label Text="Theme" Style="{StaticResource Muted}" />
-          <Picker ItemsSource="{Binding ThemeOptions}" SelectedItem="{Binding Theme}" />
-        </VerticalStackLayout>
-      </Border>
-
-      <!-- Budget and reminders -->
-      <Border Style="{StaticResource Card}">
-        <VerticalStackLayout Spacing="6">
-          <Label Text="Monthly budget" Style="{StaticResource Header}" />
-          <Label Text="Limit in ₴ (leave empty for no limit)" Style="{StaticResource Muted}" />
-          <Entry Text="{Binding BudgetText}" Keyboard="Numeric" Placeholder="1000" />
-
-          <Label Text="Reminders" Style="{StaticResource Header}" Margin="0,12,0,0" />
-          <Label Text="Remind me before a payment:" Style="{StaticResource Muted}" />
-          <Picker ItemsSource="{Binding RemindOptions}" SelectedItem="{Binding RemindOption}" />
-          <Label Text="{Binding RemindHint}" Style="{StaticResource Muted}" />
-
-          <Grid ColumnDefinitions="*,Auto" Margin="0,6,0,0">
-            <VerticalStackLayout>
-              <Label Text="System notifications" Style="{StaticResource Strong}" />
-              <Label Text="Get a notification even when the app is closed" Style="{StaticResource Muted}" />
-            </VerticalStackLayout>
-            <Switch Grid.Column="1" IsToggled="{Binding NotificationsEnabled}" VerticalOptions="Center" />
-          </Grid>
-          <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding IsWindows}">
-            <VerticalStackLayout>
-              <Label Text="Run in background at Windows startup" Style="{StaticResource Strong}" />
-              <Label Text="Needed for on-time reminders when the window is closed" Style="{StaticResource Muted}" />
-            </VerticalStackLayout>
-            <Switch Grid.Column="1" IsToggled="{Binding StartWithWindows}" VerticalOptions="Center" />
-          </Grid>
-          <Button Text="Send test notification" Command="{Binding TestNotificationCommand}"
-                  Style="{StaticResource SecondaryButton}" IsEnabled="{Binding NotificationsEnabled}" />
-
-          <Button Text="Save settings" Command="{Binding SaveCommand}" Margin="0,10,0,0" />
-        </VerticalStackLayout>
-      </Border>
-
-      <!-- Currencies -->
-      <Border Style="{StaticResource Card}">
-        <VerticalStackLayout Spacing="6">
-          <Label Text="Exchange rates" Style="{StaticResource Header}" />
-          <Label Text="Prices in other currencies are converted to ₴ for all totals." Style="{StaticResource Muted}" />
-          <VerticalStackLayout Spacing="4" BindableLayout.ItemsSource="{Binding Rates}" Margin="0,4">
-            <BindableLayout.ItemTemplate>
-              <DataTemplate x:DataType="vm:RateItem">
-                <Label Text="{Binding Text}" Style="{StaticResource Strong}" />
-              </DataTemplate>
-            </BindableLayout.ItemTemplate>
+        <!-- ============ Appearance ============ -->
+        <Border c:AdaptiveColumns.Column="0" Style="{StaticResource Card}">
+          <VerticalStackLayout Spacing="14">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+              <Image Source="tile_theme.png" Style="{StaticResource SectionIcon}" />
+              <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="-2">
+                <Label Text="Appearance" Style="{StaticResource Header}" />
+                <Label Text="Light, dark or the same as the system" Style="{StaticResource Muted}" FontSize="12" />
+              </VerticalStackLayout>
+            </Grid>
+            <Border Style="{StaticResource Field}">
+              <Picker ItemsSource="{Binding ThemeOptions}" SelectedItem="{Binding Theme}" />
+            </Border>
           </VerticalStackLayout>
-          <Label Text="{Binding RatesUpdatedText}" Style="{StaticResource Muted}" />
-          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
-            <Button Text="Update rates" Command="{Binding UpdateRatesCommand}" Style="{StaticResource SecondaryButton}" />
-            <ActivityIndicator Grid.Column="1" IsRunning="{Binding IsUpdatingRates}" IsVisible="{Binding IsUpdatingRates}"
-                               Color="{StaticResource Primary}" WidthRequest="24" HeightRequest="24" />
-          </Grid>
-        </VerticalStackLayout>
-      </Border>
+        </Border>
 
-      <!-- Updates -->
-      <Border Style="{StaticResource Card}" IsVisible="{Binding IsUpdateSupported}">
-        <VerticalStackLayout Spacing="6">
-          <Label Text="Updates" Style="{StaticResource Header}" />
-          <Label Text="{Binding VersionText}" Style="{StaticResource Strong}" />
-          <Grid ColumnDefinitions="*,Auto">
-            <VerticalStackLayout>
-              <Label Text="Update automatically" Style="{StaticResource Strong}" />
-              <Label Text="{Binding AutoUpdateHint}" Style="{StaticResource Muted}" />
+        <!-- ============ Budget and reminders ============ -->
+        <Border c:AdaptiveColumns.Column="0" Style="{StaticResource Card}">
+          <VerticalStackLayout Spacing="14">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+              <Image Source="tile_budget.png" Style="{StaticResource SectionIcon}" />
+              <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="-2">
+                <Label Text="Monthly budget" Style="{StaticResource Header}" />
+                <Label Text="Limit in ₴ (leave empty for no limit)" Style="{StaticResource Muted}" FontSize="12" />
+              </VerticalStackLayout>
+            </Grid>
+            <Border Style="{StaticResource Field}">
+              <Entry Text="{Binding BudgetText}" Keyboard="Numeric" Placeholder="1000" />
+            </Border>
+
+            <BoxView Style="{StaticResource Divider}" Margin="0,4" />
+
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+              <Image Source="tile_bell.png" Style="{StaticResource SectionIcon}" />
+              <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="-2">
+                <Label Text="Reminders" Style="{StaticResource Header}" />
+                <Label Text="Remind me before a payment" Style="{StaticResource Muted}" FontSize="12" />
+              </VerticalStackLayout>
+            </Grid>
+            <Border Style="{StaticResource Field}">
+              <Picker ItemsSource="{Binding RemindOptions}" SelectedItem="{Binding RemindOption}" />
+            </Border>
+            <Label Text="{Binding RemindHint}" Style="{StaticResource Muted}" FontSize="12" />
+
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+              <VerticalStackLayout VerticalOptions="Center">
+                <Label Text="System notifications" Style="{StaticResource Strong}" />
+                <Label Text="Get a notification even when the app is closed" Style="{StaticResource Muted}" FontSize="12" />
+              </VerticalStackLayout>
+              <Switch Grid.Column="1" IsToggled="{Binding NotificationsEnabled}" VerticalOptions="Center" />
+            </Grid>
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12" IsVisible="{Binding IsWindows}">
+              <VerticalStackLayout VerticalOptions="Center">
+                <Label Text="Run in background at Windows startup" Style="{StaticResource Strong}" />
+                <Label Text="Needed for on-time reminders when the window is closed" Style="{StaticResource Muted}" FontSize="12" />
+              </VerticalStackLayout>
+              <Switch Grid.Column="1" IsToggled="{Binding StartWithWindows}" VerticalOptions="Center" />
+            </Grid>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,4,0,0">
+              <Button Text="Test notification" Command="{Binding TestNotificationCommand}"
+                      Style="{StaticResource SecondaryButton}" IsEnabled="{Binding NotificationsEnabled}" />
+              <Button Grid.Column="1" Text="Save settings" Command="{Binding SaveCommand}" />
+            </Grid>
+          </VerticalStackLayout>
+        </Border>
+
+        <!-- ============ Exchange rates ============ -->
+        <Border c:AdaptiveColumns.Column="1" Style="{StaticResource Card}">
+          <VerticalStackLayout Spacing="14">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+              <Image Source="tile_currency.png" Style="{StaticResource SectionIcon}" />
+              <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="-2">
+                <Label Text="Exchange rates" Style="{StaticResource Header}" />
+                <Label Text="Other currencies are converted to ₴ for all totals" Style="{StaticResource Muted}" FontSize="12" />
+              </VerticalStackLayout>
+            </Grid>
+            <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding Rates}">
+              <BindableLayout.ItemTemplate>
+                <DataTemplate x:DataType="vm:RateItem">
+                  <Border Style="{StaticResource Chip}" Padding="12,6" Margin="0,0,8,8">
+                    <Label Text="{Binding Text}" FontFamily="PoppinsSemiBold" FontSize="13" />
+                  </Border>
+                </DataTemplate>
+              </BindableLayout.ItemTemplate>
+            </FlexLayout>
+            <Label Text="{Binding RatesUpdatedText}" Style="{StaticResource Muted}" FontSize="12" Margin="0,-6,0,0" />
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+              <Button Text="Update rates" Command="{Binding UpdateRatesCommand}" Style="{StaticResource SecondaryButton}" />
+              <ActivityIndicator Grid.Column="1" IsRunning="{Binding IsUpdatingRates}" IsVisible="{Binding IsUpdatingRates}"
+                                 WidthRequest="24" HeightRequest="24" />
+            </Grid>
+          </VerticalStackLayout>
+        </Border>
+
+        <!-- ============ Updates ============ -->
+        <Border c:AdaptiveColumns.Column="1" Style="{StaticResource Card}" IsVisible="{Binding IsUpdateSupported}">
+          <VerticalStackLayout Spacing="14">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+              <Image Source="tile_update.png" Style="{StaticResource SectionIcon}" />
+              <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="-2">
+                <Label Text="Updates" Style="{StaticResource Header}" />
+                <Label Text="{Binding VersionText}" Style="{StaticResource Muted}" FontSize="12" />
+              </VerticalStackLayout>
+            </Grid>
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+              <VerticalStackLayout VerticalOptions="Center">
+                <Label Text="Update automatically" Style="{StaticResource Strong}" />
+                <Label Text="{Binding AutoUpdateHint}" Style="{StaticResource Muted}" FontSize="12" />
+              </VerticalStackLayout>
+              <Switch Grid.Column="1" IsToggled="{Binding AutoUpdate}" VerticalOptions="Center" />
+            </Grid>
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+              <Button Text="Check for updates" Command="{Binding CheckForUpdatesCommand}" Style="{StaticResource SecondaryButton}" />
+              <ActivityIndicator Grid.Column="1" IsRunning="{Binding IsCheckingUpdates}" IsVisible="{Binding IsCheckingUpdates}"
+                                 WidthRequest="24" HeightRequest="24" />
+            </Grid>
+          </VerticalStackLayout>
+        </Border>
+
+        <!-- ============ Data ============ -->
+        <Border c:AdaptiveColumns.Column="1" Style="{StaticResource Card}">
+          <VerticalStackLayout Spacing="14">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+              <Image Source="tile_data.png" Style="{StaticResource SectionIcon}" />
+              <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="-2">
+                <Label Text="Data" Style="{StaticResource Header}" />
+                <Label Text="Stored locally in SQLite" Style="{StaticResource Muted}" FontSize="12" />
+              </VerticalStackLayout>
+            </Grid>
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+              <Button Text="Add demo data" Command="{Binding AddDemoCommand}" Style="{StaticResource SecondaryButton}" />
+              <Button Grid.Column="1" Text="Delete all" Command="{Binding ClearAllCommand}" Style="{StaticResource DangerButton}" />
+            </Grid>
+            <VerticalStackLayout Spacing="2">
+              <Label Text="Database file" Style="{StaticResource Caption}" />
+              <Label Text="{Binding DbPath}" FontSize="12" LineBreakMode="CharacterWrap" />
             </VerticalStackLayout>
-            <Switch Grid.Column="1" IsToggled="{Binding AutoUpdate}" VerticalOptions="Center" />
-          </Grid>
-          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
-            <Button Text="Check for updates" Command="{Binding CheckForUpdatesCommand}" Style="{StaticResource SecondaryButton}" />
-            <ActivityIndicator Grid.Column="1" IsRunning="{Binding IsCheckingUpdates}" IsVisible="{Binding IsCheckingUpdates}"
-                               Color="{StaticResource Primary}" WidthRequest="24" HeightRequest="24" />
-          </Grid>
-        </VerticalStackLayout>
-      </Border>
+          </VerticalStackLayout>
+        </Border>
+      </c:AdaptiveColumns>
 
-      <!-- Data -->
-      <Border Style="{StaticResource Card}">
-        <VerticalStackLayout Spacing="8">
-          <Label Text="Data" Style="{StaticResource Header}" />
-          <Button Text="Add demo subscriptions" Command="{Binding AddDemoCommand}" Style="{StaticResource SecondaryButton}" />
-          <Button Text="Delete all subscriptions" Command="{Binding ClearAllCommand}" Style="{StaticResource DangerButton}" />
-          <Label Text="SQLite database file:" Style="{StaticResource Muted}" Margin="0,8,0,0" />
-          <Label Text="{Binding DbPath}" FontSize="12" LineBreakMode="CharacterWrap" />
-        </VerticalStackLayout>
-      </Border>
-
-      <Label Text="Subscription Tracker • C# / .NET MAUI / SQLite / MVVM" Style="{StaticResource Muted}" HorizontalTextAlignment="Center" />
+      <Label Text="Subscription Tracker • C# / .NET MAUI / SQLite / MVVM" Style="{StaticResource Muted}" FontSize="12"
+             HorizontalTextAlignment="Center" />
     </VerticalStackLayout>
   </ScrollView>
 </ContentPage>

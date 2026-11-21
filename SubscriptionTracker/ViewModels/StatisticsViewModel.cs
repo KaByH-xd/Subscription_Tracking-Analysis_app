@@ -11,6 +11,7 @@ public record CategoryStat(string Name, decimal Amount, double Share)
     public string Title => $"{Categories.Icon(Name)}  {Name}";
     public string AmountText => $"{Amount:N0} ₴";
     public string ShareText => $"{Share:P0}";
+    public Color Color => Categories.Color(Name);
 }
 
 public partial class StatisticsViewModel : ObservableObject

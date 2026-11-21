@@ -23,6 +23,18 @@ public static class Categories
         _ => "📦"
     };
 
+    /// <summary>Accent colour of a category (chart bars, logo placeholders).</summary>
+    public static Color Color(string category) => Microsoft.Maui.Graphics.Color.FromArgb(category switch
+    {
+        Music => "#FF5C8A",
+        Video => "#FF7A45",
+        Gaming => "#7B61FF",
+        Cloud => "#2D9CFF",
+        Software => "#14B8A6",
+        Education => "#F5A524",
+        _ => "#8E95A8"
+    });
+
     /// <summary>Maps category names saved by older (Ukrainian) versions of the app.</summary>
     public static string Normalize(string? category) => category switch
     {

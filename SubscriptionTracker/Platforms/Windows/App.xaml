@@ -4,4 +4,23 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:maui="using:Microsoft.Maui"
     xmlns:local="using:SubscriptionTracker.WinUI">
+  <maui:MauiWinUIApplication.Resources>
+    <ResourceDictionary>
+      <!-- Side menu: brand-coloured selection pill instead of the Windows accent colour -->
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+          <SolidColorBrush x:Key="NavigationViewSelectionIndicatorForeground" Color="#5B3FE4" />
+          <SolidColorBrush x:Key="NavigationViewItemBackgroundSelected" Color="#ECE8FF" />
+          <SolidColorBrush x:Key="NavigationViewItemBackgroundSelectedPointerOver" Color="#E2DCFF" />
+          <SolidColorBrush x:Key="NavigationViewItemBackgroundSelectedPressed" Color="#D8D0FF" />
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+          <SolidColorBrush x:Key="NavigationViewSelectionIndicatorForeground" Color="#A898FF" />
+          <SolidColorBrush x:Key="NavigationViewItemBackgroundSelected" Color="#2A2452" />
+          <SolidColorBrush x:Key="NavigationViewItemBackgroundSelectedPointerOver" Color="#332C60" />
+          <SolidColorBrush x:Key="NavigationViewItemBackgroundSelectedPressed" Color="#3A3270" />
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+    </ResourceDictionary>
+  </maui:MauiWinUIApplication.Resources>
 </maui:MauiWinUIApplication>

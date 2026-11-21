@@ -47,6 +47,14 @@ public class Subscription
 
     [Ignore] public string Icon => Categories.Icon(Category);
 
+    [Ignore] public Color CategoryColor => Categories.Color(Category);
+
+    /// <summary>Translucent category colour — background behind the emoji when there is no logo.</summary>
+    [Ignore] public Color CategorySoftColor => Categories.Color(Category).WithAlpha(0.18f);
+
+    /// <summary>Active and charged within 3 days — highlighted in lists.</summary>
+    [Ignore] public bool IsDueSoon => IsActive && DaysLeft <= 3;
+
     /// <summary>Local path of the downloaded logo (filled by DatabaseService).</summary>
     [Ignore] public string? LogoPath { get; set; }
     [Ignore] public ImageSource? Logo => LogoPath is null ? null : ImageSource.FromFile(LogoPath);
