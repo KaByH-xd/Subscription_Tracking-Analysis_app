@@ -19,7 +19,7 @@
 
           <!-- Add button: top-right on PC, below the numbers on a phone -->
           <Button Grid.RowSpan="2" Grid.Column="1" Text="Add subscription" Style="{StaticResource HeroButton}"
-                  ImageSource="ic_plus.png" ContentLayout="Left,6" Command="{Binding AddCommand}"
+                  ImageSource="ic_plus_dark.png" ContentLayout="Left,6" Command="{Binding AddCommand}"
                   VerticalOptions="Start" IsVisible="{OnIdiom Phone=False, Default=True}" />
 
           <Grid Grid.Row="3" Grid.ColumnSpan="2" ColumnDefinitions="*,*,*" ColumnSpacing="10" Margin="0,14,0,0">

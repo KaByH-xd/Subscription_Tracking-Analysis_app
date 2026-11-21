@@ -43,7 +43,7 @@
             </VisualStateGroup>
           </VisualStateGroupList>
         </VisualStateManager.VisualStateGroups>
-        <Image Source="{Binding FlyoutIcon}" WidthRequest="32" HeightRequest="32" VerticalOptions="Center" />
+        <Image Source="{Binding Icon}" WidthRequest="32" HeightRequest="32" VerticalOptions="Center" />
         <Label x:Name="ItemTitle" Grid.Column="1" Text="{Binding Title}" FontFamily="PoppinsMedium" FontSize="15"
                VerticalOptions="Center" />
       </Grid>

@@ -29,9 +29,9 @@ public static class InputStyling
             h.PlatformView.HorizontalAlignment = Microsoft.UI.Xaml.HorizontalAlignment.Stretch;
             Transparent(h.PlatformView.Resources,
                 "ComboBoxBackground", "ComboBoxBackgroundPointerOver", "ComboBoxBackgroundPressed",
-                "ComboBoxBackgroundFocused", "ComboBoxBackgroundUnfocused",
+                "ComboBoxBackgroundFocused",
                 "ComboBoxBorderBrush", "ComboBoxBorderBrushPointerOver", "ComboBoxBorderBrushPressed",
-                "ComboBoxBorderBrushFocused", "ComboBoxBorderBrushUnfocused");
+                "ComboBoxBorderBrushFocused");
         });
         DatePickerHandler.Mapper.AppendToMapping("Flat", (h, _) =>
         {
@@ -39,7 +39,7 @@ public static class InputStyling
             h.PlatformView.HorizontalAlignment = Microsoft.UI.Xaml.HorizontalAlignment.Stretch;
             Transparent(h.PlatformView.Resources,
                 "CalendarDatePickerBackground", "CalendarDatePickerBackgroundPointerOver",
-                "CalendarDatePickerBackgroundPressed", "CalendarDatePickerBackgroundFocused",
+                "CalendarDatePickerBackgroundPressed",
                 "CalendarDatePickerBorderBrush", "CalendarDatePickerBorderBrushPointerOver",
                 "CalendarDatePickerBorderBrushPressed");
         });
@@ -47,10 +47,24 @@ public static class InputStyling
     }
 
 #if WINDOWS
+    /// <summary>
+    /// Overrides the control's theme brushes with transparent ones. WinUI throws for resource keys it does not
+    /// know, so every key is set separately: a failure only skips that cosmetic override
+    /// instead of breaking the whole page.
+    /// </summary>
     private static void Transparent(Microsoft.UI.Xaml.ResourceDictionary resources, params string[] keys)
     {
-        var brush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Transparent);
-        foreach (var key in keys) resources[key] = brush;
+        foreach (var key in keys)
+        {
+            try
+            {
+                resources[key] = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Transparent);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"InputStyling: cannot override {key}: {ex.Message}");
+            }
+        }
     }
 #endif
 }

@@ -56,8 +56,42 @@ public partial class AppShell : Shell
         }
 
         FlyoutBehavior = FlyoutBehavior.Locked;
-        SizeChanged += (_, _) => UpdateSideMenuMode();
+        _hasSideMenu = true;
     }
+
+    private bool _hasSideMenu;
+    private Window? _window;
+
+    // The Shell itself reports no size on Windows, and MAUI's Window.SizeChanged does not fire there,
+    // so the side menu follows the native WinUI window.
+    protected override void OnPropertyChanged(string? propertyName = null)
+    {
+        base.OnPropertyChanged(propertyName);
+        if (!_hasSideMenu || propertyName != nameof(Window) || ReferenceEquals(_window, Window)) return;
+
+        if (_window is not null) _window.HandlerChanged -= OnWindowHandlerChanged;
+        _window = Window;
+        if (_window is null) return;
+        _window.HandlerChanged += OnWindowHandlerChanged;
+        OnWindowHandlerChanged(_window, EventArgs.Empty);
+    }
+
+    private void OnWindowHandlerChanged(object? sender, EventArgs e)
+    {
+#if WINDOWS
+        if (_window?.Handler?.PlatformView is Microsoft.UI.Xaml.Window native)
+        {
+            native.SizeChanged -= OnNativeWindowSizeChanged;
+            native.SizeChanged += OnNativeWindowSizeChanged;
+            UpdateSideMenuMode(native.Bounds.Width);
+        }
+#endif
+    }
+
+#if WINDOWS
+    private void OnNativeWindowSizeChanged(object sender, Microsoft.UI.Xaml.WindowSizeChangedEventArgs e) =>
+        UpdateSideMenuMode(e.Size.Width);
+#endif
 
     /// <summary>Phone/tablet: bottom tab bar (icons are tinted by the system).</summary>
     private void BuildTabBar()
@@ -77,10 +111,10 @@ public partial class AppShell : Shell
     }
 
     /// <summary>Wide window → menu always visible; narrow window → menu opens from the hamburger button.</summary>
-    private void UpdateSideMenuMode()
+    private void UpdateSideMenuMode(double width)
     {
-        if (Width <= 0) return;
-        var mode = Width >= SideMenuMinWidth ? FlyoutBehavior.Locked : FlyoutBehavior.Flyout;
+        if (double.IsNaN(width) || width <= 0) return;
+        var mode = width >= SideMenuMinWidth ? FlyoutBehavior.Locked : FlyoutBehavior.Flyout;
         if (FlyoutBehavior != mode)
             FlyoutBehavior = mode;
     }
