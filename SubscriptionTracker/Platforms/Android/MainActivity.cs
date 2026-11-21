@@ -34,6 +34,7 @@ public class MainActivity : MauiAppCompatActivity
 #pragma warning restore CA1422
 
         var bars = WindowCompat.GetInsetsController(Window, Window.DecorView);
+        if (bars is null) return;
         bars.AppearanceLightStatusBars = !dark;
         bars.AppearanceLightNavigationBars = !dark;
     }

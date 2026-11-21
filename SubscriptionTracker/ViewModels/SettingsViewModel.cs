@@ -2,9 +2,13 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SubscriptionTracker.Models;
 using SubscriptionTracker.Services;
 
 namespace SubscriptionTracker.ViewModels;
+
+/// <summary>A user category in the Settings list, with its own delete command.</summary>
+public record CategoryItem(string Name, string Icon, IAsyncRelayCommand RemoveCommand);
 
 public record RateItem(string Code, decimal Rate)
 {
@@ -17,10 +21,13 @@ public partial class SettingsViewModel : ObservableObject
     private readonly SettingsService _settings;
     private readonly ReminderService _reminders;
     private readonly UpdateService _updates;
+    private readonly CategoryService _categories;
     private bool _loading;
 
-    public SettingsViewModel(IDatabaseService db, SettingsService settings, ReminderService reminders, UpdateService updates)
+    public SettingsViewModel(IDatabaseService db, SettingsService settings, ReminderService reminders, UpdateService updates,
+        CategoryService categories)
     {
+        _categories = categories;
         _db = db;
         _settings = settings;
         _reminders = reminders;
@@ -44,6 +51,10 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private bool startWithWindows = true;
     [ObservableProperty] private bool autoUpdate = true;
     [ObservableProperty] private bool isCheckingUpdates;
+
+    /// <summary>Categories created by the user (shown in the "Categories" card).</summary>
+    public ObservableCollection<CategoryItem> CustomCategories { get; } = new();
+    [ObservableProperty] private bool hasCustomCategories;
 
     public bool IsWindows => DeviceInfo.Platform == DevicePlatform.WinUI;
     [ObservableProperty] private string theme = SettingsService.ThemeSystem;
@@ -94,6 +105,28 @@ public partial class SettingsViewModel : ObservableObject
         Theme = _settings.Theme;
         _loading = false;
         ShowRates();
+        ShowCategories();
+    }
+
+    private void ShowCategories()
+    {
+        CustomCategories.Clear();
+        foreach (var c in Categories.Custom)
+            CustomCategories.Add(new CategoryItem(c.Name, c.Icon, new AsyncRelayCommand(() => RemoveCategoryAsync(c))));
+        HasCustomCategories = CustomCategories.Count > 0;
+    }
+
+    [RelayCommand]
+    private async Task AddCategoryAsync()
+    {
+        if (await _categories.PromptAndAddAsync() is not null)
+            ShowCategories();
+    }
+
+    private async Task RemoveCategoryAsync(CustomCategory category)
+    {
+        if (await _categories.ConfirmAndRemoveAsync(category))
+            ShowCategories();
     }
 
     private void ShowRates()

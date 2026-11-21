@@ -39,6 +39,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<LogoService>();
         builder.Services.AddSingleton<ReminderService>();
         builder.Services.AddSingleton<UpdateService>();
+        builder.Services.AddSingleton<CategoryService>();
 
         // ViewModels
         builder.Services.AddTransient<DashboardViewModel>();

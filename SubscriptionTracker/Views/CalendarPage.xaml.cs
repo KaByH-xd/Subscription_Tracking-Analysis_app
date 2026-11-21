@@ -10,6 +10,9 @@ public partial class CalendarPage : ContentPage
     {
         InitializeComponent();
         BindingContext = _vm = vm;
+
+        // Fewer logos fit in a day cell on a phone
+        Controls.SizeClass.Changed += (_, _) => _vm.Refresh();
     }
 
     protected override void OnAppearing()

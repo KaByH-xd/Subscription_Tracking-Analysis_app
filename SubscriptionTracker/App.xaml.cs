@@ -8,7 +8,13 @@ public partial class App : Application
     {
         InitializeComponent();
 
+        // Compact (phone) or regular sizes; updated later from the real page width
+        Controls.SizeClass.Init(Resources);
+
         var settings = new SettingsService();
+
+        // User-created categories are available everywhere from the start
+        CategoryService.Load(settings);
 
         // Restore the theme chosen in Settings (System / Light / Dark)
         UserAppTheme = SettingsService.ToAppTheme(settings.Theme);

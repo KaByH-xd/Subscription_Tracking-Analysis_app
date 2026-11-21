@@ -25,7 +25,8 @@ public partial class SubscriptionsViewModel : ObservableObject
     public ObservableCollection<Subscription> Items { get; } = new();
 
     public string[] StatusFilters { get; } = { StatusAll, StatusActive, StatusPaused };
-    public string[] CategoryFilters { get; } = new[] { AllCategories }.Concat(Categories.All).ToArray();
+    /// <summary>Refreshed on every load, so categories created by the user appear here too.</summary>
+    public ObservableCollection<string> CategoryFilters { get; } = new(new[] { AllCategories }.Concat(Categories.All));
     public string[] SortOptions { get; } = { SortByDate, SortByPrice, SortByName };
 
     [ObservableProperty] private string searchText = "";
@@ -52,7 +53,23 @@ public partial class SubscriptionsViewModel : ObservableObject
     private async Task LoadAsync()
     {
         _all = await _db.GetAllAsync();
+        RefreshCategoryFilters();
         ApplyFilters();
+    }
+
+    private void RefreshCategoryFilters()
+    {
+        var wanted = new[] { AllCategories }
+            .Concat(Categories.All)
+            .Concat(_all.Select(s => s.Category).Where(c => !Categories.Exists(c)))   // deleted custom ones still in use
+            .Distinct()
+            .ToList();
+        if (wanted.SequenceEqual(CategoryFilters)) return;
+
+        var current = CategoryFilter;
+        CategoryFilters.Clear();
+        foreach (var c in wanted) CategoryFilters.Add(c);
+        CategoryFilter = wanted.Contains(current) ? current : AllCategories;
     }
 
     private void ApplyFilters()

@@ -7,7 +7,7 @@
              x:DataType="vm:SettingsViewModel"
              Title="Settings">
   <ScrollView>
-    <VerticalStackLayout Padding="{OnIdiom Phone='16,4,16,24', Default='28,8,28,32'}" Spacing="16" MaximumWidthRequest="1180">
+    <VerticalStackLayout Padding="{DynamicResource PagePadding}" Spacing="{DynamicResource SectionSpacing}" MaximumWidthRequest="1180">
       <c:AdaptiveColumns Spacing="16" Breakpoint="820">
 
         <!-- ============ Appearance ============ -->
@@ -23,6 +23,41 @@
             <Border Style="{StaticResource Field}">
               <Picker ItemsSource="{Binding ThemeOptions}" SelectedItem="{Binding Theme}" />
             </Border>
+          </VerticalStackLayout>
+        </Border>
+
+        <!-- ============ Own categories ============ -->
+        <Border c:AdaptiveColumns.Column="0" Style="{StaticResource Card}">
+          <VerticalStackLayout Spacing="14">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+              <Image Source="tile_tag.png" Style="{StaticResource SectionIcon}" />
+              <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="-2">
+                <Label Text="Categories" Style="{StaticResource Header}" />
+                <Label Text="Create your own when the built-in ones don't fit" Style="{StaticResource Muted}" FontSize="12" />
+              </VerticalStackLayout>
+            </Grid>
+            <VerticalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding CustomCategories}">
+              <BindableLayout.EmptyView>
+                <Label Text="No categories of your own yet. Built-in: Music, Video, Gaming, Cloud, Software, Education, Other."
+                       Style="{StaticResource Muted}" FontSize="12" />
+              </BindableLayout.EmptyView>
+              <BindableLayout.ItemTemplate>
+                <DataTemplate x:DataType="vm:CategoryItem">
+                  <Border Style="{StaticResource Chip}" StrokeShape="RoundRectangle 12" Padding="12,4,4,4">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                      <Label Text="{Binding Icon}" FontSize="18" VerticalOptions="Center" />
+                      <Label Grid.Column="1" Text="{Binding Name}" Style="{StaticResource Strong}" VerticalOptions="Center"
+                             LineBreakMode="WordWrap" />
+                      <Button Grid.Column="2" Text="Delete" Command="{Binding RemoveCommand}" Style="{StaticResource DangerButton}"
+                              FontSize="13" Padding="12,0" HeightRequest="38" MinimumHeightRequest="38"
+                              SemanticProperties.Description="Delete this category" />
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+            <Button Text="Add category" ImageSource="ic_plus_primary.png" ContentLayout="Left,6"
+                    Command="{Binding AddCategoryCommand}" Style="{StaticResource SecondaryButton}" />
           </VerticalStackLayout>
         </Border>
 
@@ -69,11 +104,12 @@
               <Switch Grid.Column="1" IsToggled="{Binding StartWithWindows}" VerticalOptions="Center" />
             </Grid>
 
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,4,0,0">
+            <!-- Side by side when there is room, otherwise one under the other -->
+            <c:AdaptiveColumns Spacing="10" Breakpoint="380" Margin="0,4,0,0">
               <Button Text="Test notification" Command="{Binding TestNotificationCommand}"
                       Style="{StaticResource SecondaryButton}" IsEnabled="{Binding NotificationsEnabled}" />
-              <Button Grid.Column="1" Text="Save settings" Command="{Binding SaveCommand}" />
-            </Grid>
+              <Button c:AdaptiveColumns.Column="1" Text="Save settings" Command="{Binding SaveCommand}" />
+            </c:AdaptiveColumns>
           </VerticalStackLayout>
         </Border>
 
@@ -140,10 +176,10 @@
                 <Label Text="Stored locally in SQLite" Style="{StaticResource Muted}" FontSize="12" />
               </VerticalStackLayout>
             </Grid>
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+            <c:AdaptiveColumns Spacing="10" Breakpoint="380">
               <Button Text="Add demo data" Command="{Binding AddDemoCommand}" Style="{StaticResource SecondaryButton}" />
-              <Button Grid.Column="1" Text="Delete all" Command="{Binding ClearAllCommand}" Style="{StaticResource DangerButton}" />
-            </Grid>
+              <Button c:AdaptiveColumns.Column="1" Text="Delete all" Command="{Binding ClearAllCommand}" Style="{StaticResource DangerButton}" />
+            </c:AdaptiveColumns>
             <VerticalStackLayout Spacing="2">
               <Label Text="Database file" Style="{StaticResource Caption}" />
               <Label Text="{Binding DbPath}" FontSize="12" LineBreakMode="CharacterWrap" />

@@ -8,14 +8,17 @@ public partial class AppShell : Shell
     /// <summary>Below this window width (Windows) the side menu collapses into a hamburger menu.</summary>
     private const double SideMenuMinWidth = 760;
 
-    /// <summary>The app sections: title, route, page, icon name (nav_*.png / tile_*.png).</summary>
-    private static readonly (string Title, string Route, Type Page, string Icon)[] Sections =
+    /// <summary>
+    /// The app sections: title, short title for the phone tab bar (5 tabs share ~360 dp),
+    /// route, page, icon name (nav_*.png / tile_*.png).
+    /// </summary>
+    private static readonly (string Title, string TabTitle, string Route, Type Page, string Icon)[] Sections =
     {
-        ("Home",          nameof(MainPage),          typeof(MainPage),          "home"),
-        ("Subscriptions", nameof(SubscriptionsPage), typeof(SubscriptionsPage), "subscriptions"),
-        ("Calendar",      nameof(CalendarPage),      typeof(CalendarPage),      "calendar"),
-        ("Statistics",    nameof(StatisticsPage),    typeof(StatisticsPage),    "statistics"),
-        ("Settings",      nameof(SettingsPage),      typeof(SettingsPage),      "settings"),
+        ("Home",          "Home",     nameof(MainPage),          typeof(MainPage),          "home"),
+        ("Subscriptions", "Subs",     nameof(SubscriptionsPage), typeof(SubscriptionsPage), "subscriptions"),
+        ("Calendar",      "Calendar", nameof(CalendarPage),      typeof(CalendarPage),      "calendar"),
+        ("Statistics",    "Stats",    nameof(StatisticsPage),    typeof(StatisticsPage),    "statistics"),
+        ("Settings",      "Settings", nameof(SettingsPage),      typeof(SettingsPage),      "settings"),
     };
 
     private bool _updateChecked;
@@ -31,6 +34,7 @@ public partial class AppShell : Shell
             BuildTabBar();
 
         Routing.RegisterRoute(nameof(EditSubscriptionPage), typeof(EditSubscriptionPage));
+        Navigated += (_, _) => TrackPageWidth(CurrentPage);
         Loaded += OnLoaded;
     }
 
@@ -93,6 +97,17 @@ public partial class AppShell : Shell
         UpdateSideMenuMode(e.Size.Width);
 #endif
 
+    private readonly HashSet<Page> _trackedPages = new();
+
+    /// <summary>Every shown page reports its width, which picks the compact or regular layout.</summary>
+    private void TrackPageWidth(Page? page)
+    {
+        if (page is null) return;
+        if (_trackedPages.Add(page))
+            page.SizeChanged += (_, _) => Controls.SizeClass.Update(page.Width);
+        Controls.SizeClass.Update(page.Width);
+    }
+
     /// <summary>Phone/tablet: bottom tab bar (icons are tinted by the system).</summary>
     private void BuildTabBar()
     {
@@ -101,7 +116,7 @@ public partial class AppShell : Shell
         {
             tabs.Items.Add(new ShellContent
             {
-                Title = s.Title,
+                Title = s.TabTitle,
                 Route = s.Route,
                 Icon = $"nav_{s.Icon}.png",
                 ContentTemplate = new DataTemplate(s.Page)
@@ -122,6 +137,7 @@ public partial class AppShell : Shell
     // A few seconds after start the app checks GitHub for a newer version
     private async void OnLoaded(object? sender, EventArgs e)
     {
+        TrackPageWidth(CurrentPage);
         if (_updateChecked) return;
         _updateChecked = true;
 

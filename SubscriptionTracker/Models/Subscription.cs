@@ -78,8 +78,12 @@ public class Subscription
     };
 
     [Ignore] public string StatusText => IsActive
-        ? $"Next payment: {NextPaymentDate:MMM d, yyyy} ({DaysLeftText})"
+        ? $"Next payment: {ShortDate(NextPaymentDate)} ({DaysLeftText})"
         : "⏸ Paused";
+
+    /// <summary>"Dec 3" this year, "Jan 5, 2027" otherwise — short enough for a phone.</summary>
+    private static string ShortDate(DateTime d) =>
+        d.Year == DateTime.Today.Year ? d.ToString("MMM d") : d.ToString("MMM d, yyyy");
 
     [Ignore] public double ItemOpacity => IsActive ? 1.0 : 0.55;
 

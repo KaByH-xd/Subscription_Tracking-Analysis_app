@@ -8,30 +8,49 @@
              x:DataType="vm:StatisticsViewModel"
              Title="Statistics">
   <ScrollView>
-    <VerticalStackLayout Padding="{OnIdiom Phone='16,4,16,24', Default='28,8,28,32'}" Spacing="16" MaximumWidthRequest="1180">
+    <VerticalStackLayout Padding="{DynamicResource PagePadding}" Spacing="{DynamicResource SectionSpacing}" MaximumWidthRequest="1180">
 
       <!-- ============ Key numbers ============ -->
-      <Grid ColumnDefinitions="*,*,*" ColumnSpacing="{OnIdiom Phone=8, Default=16}">
+      <!-- Regular: three tiles -->
+      <Grid ColumnDefinitions="*,*,*" ColumnSpacing="16" IsVisible="{DynamicResource WideOnly}">
         <Border Style="{StaticResource Card}">
           <VerticalStackLayout Spacing="2">
             <Label Text="Per day" Style="{StaticResource Caption}" />
-            <Label Text="{Binding PerDay, StringFormat='{0:0.0} ₴'}" Style="{StaticResource BigNumber}" FontSize="{OnIdiom Phone=17, Default=26}" />
+            <Label Text="{Binding PerDay, StringFormat='{0:0.0} ₴'}" Style="{StaticResource BigNumber}" FontSize="{DynamicResource StatNumberSize}" />
           </VerticalStackLayout>
         </Border>
         <Border Grid.Column="1" Style="{StaticResource Card}">
           <VerticalStackLayout Spacing="2">
             <Label Text="Per month" Style="{StaticResource Caption}" />
-            <Label Text="{Binding PerMonth, StringFormat='{0:N0} ₴'}" Style="{StaticResource BigNumber}" FontSize="{OnIdiom Phone=17, Default=26}"
+            <Label Text="{Binding PerMonth, StringFormat='{0:N0} ₴'}" Style="{StaticResource BigNumber}" FontSize="{DynamicResource StatNumberSize}"
                    TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
           </VerticalStackLayout>
         </Border>
         <Border Grid.Column="2" Style="{StaticResource Card}">
           <VerticalStackLayout Spacing="2">
             <Label Text="Per year" Style="{StaticResource Caption}" />
-            <Label Text="{Binding PerYear, StringFormat='{0:N0} ₴'}" Style="{StaticResource BigNumber}" FontSize="{OnIdiom Phone=17, Default=26}" />
+            <Label Text="{Binding PerYear, StringFormat='{0:N0} ₴'}" Style="{StaticResource BigNumber}" FontSize="{DynamicResource StatNumberSize}" />
           </VerticalStackLayout>
         </Border>
       </Grid>
+
+      <!-- Compact (phone): one card, a row per value, so long numbers always fit -->
+      <Border Style="{StaticResource Card}" IsVisible="{DynamicResource CompactOnly}" Padding="16,6">
+        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12">
+          <Label Text="Per day" Style="{StaticResource Muted}" VerticalOptions="Center" Padding="0,10" />
+          <Label Grid.Column="1" Text="{Binding PerDay, StringFormat='{0:0.0} ₴'}" Style="{StaticResource BigNumber}"
+                 FontSize="{DynamicResource StatNumberSize}" VerticalOptions="Center" />
+          <Label Grid.Row="1" Text="Per month" Style="{StaticResource Muted}" VerticalOptions="Center" Padding="0,10" />
+          <Label Grid.Row="1" Grid.Column="1" Text="{Binding PerMonth, StringFormat='{0:N0} ₴'}" Style="{StaticResource BigNumber}"
+                 FontSize="{DynamicResource StatNumberSize}" VerticalOptions="Center"
+                 TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+          <Label Grid.Row="2" Text="Per year" Style="{StaticResource Muted}" VerticalOptions="Center" Padding="0,10" />
+          <Label Grid.Row="2" Grid.Column="1" Text="{Binding PerYear, StringFormat='{0:N0} ₴'}" Style="{StaticResource BigNumber}"
+                 FontSize="{DynamicResource StatNumberSize}" VerticalOptions="Center" />
+          <BoxView Grid.ColumnSpan="2" Style="{StaticResource Divider}" VerticalOptions="End" />
+          <BoxView Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource Divider}" VerticalOptions="End" />
+        </Grid>
+      </Border>
 
       <!-- ============ Insight ============ -->
       <Border Style="{StaticResource Card}">
@@ -89,7 +108,7 @@
                   <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                     <c:LogoView WidthRequest="38" HeightRequest="38" VerticalOptions="Center" />
                     <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="-2">
-                      <Label Text="{Binding Name}" Style="{StaticResource Strong}" LineBreakMode="TailTruncation" />
+                      <Label Text="{Binding Name}" Style="{StaticResource Strong}" LineBreakMode="WordWrap" MaxLines="2" />
                       <Label Text="{Binding Category}" Style="{StaticResource Muted}" FontSize="12" />
                     </VerticalStackLayout>
                     <Label Grid.Column="2" Text="{Binding MonthlyUahText}" Style="{StaticResource Strong}" VerticalOptions="Center" />

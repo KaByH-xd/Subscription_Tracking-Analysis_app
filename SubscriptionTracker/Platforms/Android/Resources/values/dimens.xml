@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- Bottom tab bar: the same label size for the selected and the other tabs. The Material default
+       enlarges the selected label to 14sp, which does not fit five tabs on a narrow phone. -->
+  <dimen name="design_bottom_navigation_text_size">11sp</dimen>
+  <dimen name="design_bottom_navigation_active_text_size">11sp</dimen>
+</resources>

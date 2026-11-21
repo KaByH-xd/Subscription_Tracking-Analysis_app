@@ -64,6 +64,41 @@ public class SettingsService
         set => Set("theme", value);
     }
 
+    /// <summary>Categories created by the user: [{"name": "Fitness", "icon": "💪"}, ...].</summary>
+    public List<Models.CustomCategory> CustomCategories
+    {
+        get
+        {
+            var list = new List<Models.CustomCategory>();
+            try
+            {
+                if (Load()["custom_categories"] is JsonArray array)
+                {
+                    foreach (var item in array.OfType<JsonObject>())
+                    {
+                        var name = item["name"]?.GetValue<string>()?.Trim();
+                        if (string.IsNullOrEmpty(name)) continue;
+                        var icon = item["icon"]?.GetValue<string>();
+                        list.Add(new Models.CustomCategory(name,
+                            string.IsNullOrWhiteSpace(icon) ? Models.Categories.DefaultCustomIcon : icon));
+                    }
+                }
+            }
+            catch
+            {
+                // malformed entry -> keep what was read
+            }
+            return list;
+        }
+        set
+        {
+            var array = new JsonArray();
+            foreach (var c in value)
+                array.Add(new JsonObject { ["name"] = c.Name, ["icon"] = c.Icon });
+            SetNode("custom_categories", array);
+        }
+    }
+
     public static AppTheme ToAppTheme(string theme) => theme switch
     {
         ThemeLight => AppTheme.Light,
@@ -92,12 +127,14 @@ public class SettingsService
         }
     }
 
-    private static void Set<T>(string key, T value)
+    private static void Set<T>(string key, T value) => SetNode(key, JsonValue.Create(value));
+
+    private static void SetNode(string key, JsonNode? value)
     {
         lock (Sync)
         {
             var obj = Load();
-            obj[key] = JsonValue.Create(value);
+            obj[key] = value;
             Directory.CreateDirectory(Path.GetDirectoryName(FilePath)!);
             File.WriteAllText(FilePath, obj.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
         }

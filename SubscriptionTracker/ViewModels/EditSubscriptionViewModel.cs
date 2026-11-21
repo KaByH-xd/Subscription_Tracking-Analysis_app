@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -12,18 +13,21 @@ public partial class EditSubscriptionViewModel : ObservableObject, IQueryAttribu
     private readonly IDatabaseService _db;
     private readonly LogoService _logos;
     private readonly ReminderService _reminders;
+    private readonly CategoryService _categories;
     private Subscription _model = new();
     private string? _lastGuess;
     private int _logoRequest;
 
-    public EditSubscriptionViewModel(IDatabaseService db, LogoService logos, ReminderService reminders)
+    public EditSubscriptionViewModel(IDatabaseService db, LogoService logos, ReminderService reminders,
+        CategoryService categories)
     {
+        _categories = categories;
         _db = db;
         _logos = logos;
         _reminders = reminders;
     }
 
-    public string[] CategoryList { get; } = Categories.All;
+    public ObservableCollection<string> CategoryList { get; } = new(Categories.All);
     public string[] Periods { get; } = { Subscription.Monthly, Subscription.Yearly };
     public string[] CurrencyList { get; } = CurrencyService.Codes;
 
@@ -96,6 +100,8 @@ public partial class EditSubscriptionViewModel : ObservableObject, IQueryAttribu
         IsEdit = true;
         PageTitle = "Edit subscription";
         Name = s.Name;
+        if (!CategoryList.Contains(s.Category))
+            CategoryList.Insert(CategoryList.Count - 1, s.Category);   // e.g. a category that was deleted
         Category = s.Category;
         Currency = s.Currency;
         PriceText = s.Price.ToString("0.##", CultureInfo.InvariantCulture);
@@ -110,6 +116,19 @@ public partial class EditSubscriptionViewModel : ObservableObject, IQueryAttribu
     private bool TryParsePrice(out decimal price) =>
         decimal.TryParse((PriceText ?? "").Replace(',', '.').Trim(),
             NumberStyles.Number, CultureInfo.InvariantCulture, out price);
+
+    /// <summary>Creates the user's own category and selects it.</summary>
+    [RelayCommand]
+    private async Task AddCategoryAsync()
+    {
+        var name = await _categories.PromptAndAddAsync();
+        if (name is null) return;
+
+        // Insert before "Other" (rebuilding the list would reset the picker's selection)
+        CategoryList.Insert(Math.Max(0, CategoryList.Count - 1), name);
+        Category = name;
+        OnPropertyChanged(nameof(CategoryIcon));
+    }
 
     [RelayCommand]
     private async Task SaveAsync()

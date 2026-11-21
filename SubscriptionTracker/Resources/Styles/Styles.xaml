@@ -54,13 +54,19 @@
   <Style x:Key="HeroNumber" TargetType="Label">
     <Setter Property="FontFamily" Value="PoppinsBold" />
     <Setter Property="TextColor" Value="{StaticResource White}" />
-    <Setter Property="FontSize" Value="{OnIdiom Phone=34, Default=40}" />
+    <Setter Property="FontSize" Value="{DynamicResource HeroNumberSize}" />
   </Style>
 
   <Style x:Key="HeroCaption" TargetType="Label">
     <Setter Property="FontFamily" Value="PoppinsMedium" />
     <Setter Property="TextColor" Value="{StaticResource HeroText}" />
     <Setter Property="FontSize" Value="13" />
+  </Style>
+
+  <Style x:Key="HeroValue" TargetType="Label">
+    <Setter Property="FontFamily" Value="PoppinsSemiBold" />
+    <Setter Property="TextColor" Value="{StaticResource White}" />
+    <Setter Property="FontSize" Value="17" />
   </Style>
 
   <Style x:Key="WeekDay" TargetType="Label">
@@ -78,14 +84,14 @@
     <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource StrokeLight}, Dark={StaticResource StrokeDark}}" />
     <Setter Property="StrokeThickness" Value="1" />
     <Setter Property="StrokeShape" Value="RoundRectangle 18" />
-    <Setter Property="Padding" Value="{OnIdiom Phone=16, Default=20}" />
+    <Setter Property="Padding" Value="{DynamicResource CardPadding}" />
   </Style>
 
   <Style x:Key="HeroCard" TargetType="Border">
     <Setter Property="Background" Value="{StaticResource HeroBrush}" />
     <Setter Property="StrokeThickness" Value="0" />
     <Setter Property="StrokeShape" Value="RoundRectangle 22" />
-    <Setter Property="Padding" Value="{OnIdiom Phone=20, Default=26}" />
+    <Setter Property="Padding" Value="{DynamicResource HeroPadding}" />
   </Style>
 
   <!-- Rounded wrapper for Entry / Picker / DatePicker: same look on Windows and Android -->
@@ -108,6 +114,7 @@
   </Style>
 
   <Style x:Key="ChipText" TargetType="Label">
+    <Setter Property="LineBreakMode" Value="TailTruncation" />
     <Setter Property="FontFamily" Value="PoppinsMedium" />
     <Setter Property="FontSize" Value="12" />
     <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource MutedLight}, Dark={StaticResource MutedDark}}" />
